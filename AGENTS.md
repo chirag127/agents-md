@@ -59,7 +59,7 @@ see `.github/workflows/` and `bootstrap/` in the repo.
 - **Report failures plainly.** "Tests pass except X, Y" beats "✅ done" when X and Y are broken.
 - **When you don't know, look it up.** Don't guess at API shapes, library versions, or pricing.
 - **Strict TypeScript.** No `any` without a comment + TODO to remove it.
-- **No paid services unless I've said so.** Free-tier first.
+- **Free first, always.** I want everything free or free-tier — never paid, very rarely paid, and only when I've explicitly said so in the current turn. **Always check for free alternatives** before recommending anything that costs money: free tiers (Cloudflare, Firebase Spark, Vercel Hobby, Supabase free, Turso free, Upstash free, GitHub free, Render free), free open-source equivalents, **GitHub Student Developer Pack** benefits, **Microsoft / Google / AWS Educate** programs, university SSO discounts, and other "free for students / individuals / OSS" plans. If only a paid option exists for what I asked, **say so up front** and propose the cheapest free workaround before quoting prices. Never silently introduce a paid dependency.
 - **Don't commit secrets.** Use `.env.example` + GitHub Actions Secrets + `.env.local` (gitignored).
 - **No `console.log` left in code.** Lint clean.
 - **Conventional commits**, small commits, one concern per commit.
@@ -132,6 +132,71 @@ this `AGENTS.md` into every detected agent's instruction-file path.
 (One-line escape hatches for specific repos — prefer `<repo>/AGENTS.md` for anything bigger.)
 
 - *(none yet — added as projects come online)*
+
+---
+
+## Windows Developer Mode (one-time)
+
+The `agents-md-sync` skill prefers symlinks over copies (single source of truth, edits
+to `~/AGENTS.md` reflect everywhere instantly). On Windows this needs **Developer Mode**.
+
+To enable (one-time, no reboot needed):
+
+```powershell
+# Run as Administrator:
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
+```
+
+Or via UI: `Settings → System → For developers → Developer Mode → On`.
+
+After enabling, re-run the sync to convert copies to symlinks:
+
+```bash
+node ~/src/skill-agents-md-sync/scripts/sync-agents.mjs
+```
+
+If Developer Mode is off, the sync still works — it falls back to file copies. Symlinks
+are the optimisation, not a requirement.
+
+---
+
+## New-laptop / lost-laptop recovery
+
+**Single bookmark:** [`github.com/chirag127/agents-md`](https://github.com/chirag127/agents-md)
+
+Everything I need recovers from that repo. The flow:
+
+```bash
+# 1. Install prereqs manually (~2 min)
+#    - Git for Windows  (includes Git Bash)   https://git-scm.com/download/win
+#    - Node.js LTS                            https://nodejs.org
+#    - GitHub CLI                             https://cli.github.com
+#    - Claude Code                            https://code.claude.com
+
+# 2. Sign in to GitHub
+gh auth login
+
+# 3. Clone and run the bootstrap
+gh repo clone chirag127/agents-md ~/src/agents-md
+cd ~/src/agents-md
+bash bootstrap/bootstrap.sh        # Linux / macOS / Git Bash on Windows
+# pwsh bootstrap/bootstrap.ps1     # Windows PowerShell alternative
+```
+
+The bootstrap reads the **Skill repos** table below, runs `npx skills add chirag127/<repo>`
+for each row, then fans this `AGENTS.md` out to every detected agent's instruction file.
+Idempotent — safe to re-run.
+
+**What deliberately doesn't sync** (and why):
+
+- Local secrets / API keys → those go in `.env.local` (gitignored) or GitHub Actions Secrets,
+  never in a public repo.
+- OS-level installations → covered by the prereqs step above.
+- Per-machine `npx skills` state → recreated by the bootstrap.
+
+**Full-machine snapshot is out of scope** for `agents-md`. If I ever want it, the free
+options are OneDrive (5 GB, Windows-native) or Backblaze B2 + Restic (10 GB free tier).
+Flag explicitly and I'll add a separate skill repo for it.
 
 ---
 
