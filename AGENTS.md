@@ -109,8 +109,8 @@ update, and reuse individually). Install via `npx skills add chirag127/<repo-nam
 
 | Skill | Repo | What it covers |
 |---|---|---|
-| `agents-md-sync` | [chirag127/skill-agents-md-sync](https://github.com/chirag127/skill-agents-md-sync) | Fan-out from this AGENTS.md to per-agent files (CLAUDE.md, GEMINI.md, .codex/AGENTS.md, .cursor/rules, etc.). |
-| `claude-code-mcq-notes` | [chirag127/skill-claude-code-mcq-notes](https://github.com/chirag127/skill-claude-code-mcq-notes) | Claude Code `AskUserQuestion` rendering bugs and workarounds — full citations. |
+| `agents-md-sync` | [chirag127/skill-agents-md-sync](https://github.com/chirag127/skill-agents-md-sync) — also vendored at [`vendor/skill-agents-md-sync`](https://github.com/chirag127/agents-md/tree/main/vendor/skill-agents-md-sync) | Fan-out from this AGENTS.md to per-agent files (CLAUDE.md, GEMINI.md, .codex/AGENTS.md, .cursor/rules, etc.). |
+| `claude-code-mcq-notes` | [chirag127/skill-claude-code-mcq-notes](https://github.com/chirag127/skill-claude-code-mcq-notes) — also vendored at [`vendor/skill-claude-code-mcq-notes`](https://github.com/chirag127/agents-md/tree/main/vendor/skill-claude-code-mcq-notes) | Claude Code `AskUserQuestion` rendering bugs and workarounds — full citations. |
 
 When I add a skill, I'll add a row here. Bootstrap a fresh laptop with:
 
@@ -162,9 +162,13 @@ are the optimisation, not a requirement.
 
 ## New-laptop / lost-laptop recovery
 
-**Single bookmark:** [`github.com/chirag127/agents-md`](https://github.com/chirag127/agents-md)
+> 🆘 **One repo to remember:** [`github.com/chirag127/agents-md`](https://github.com/chirag127/agents-md)
+>
+> See [`RECOVERY.md`](https://github.com/chirag127/agents-md/blob/main/RECOVERY.md) for the panic-button instructions.
 
-Everything I need recovers from that repo. The flow:
+That repo is the **umbrella**: it pins every personal skill repo as a git submodule
+under `vendor/`, so a single clone with `--recurse-submodules` brings down the entire
+configuration (this AGENTS.md + every skill + the bootstrap). The flow:
 
 ```bash
 # 1. Install prereqs manually (~2 min)
@@ -176,12 +180,16 @@ Everything I need recovers from that repo. The flow:
 # 2. Sign in to GitHub
 gh auth login
 
-# 3. Clone and run the bootstrap
-gh repo clone chirag127/agents-md ~/src/agents-md
+# 3. Clone (recursively!) and run the bootstrap
+gh repo clone chirag127/agents-md ~/src/agents-md -- --recurse-submodules
 cd ~/src/agents-md
 bash bootstrap/bootstrap.sh        # Linux / macOS / Git Bash on Windows
 # pwsh bootstrap/bootstrap.ps1     # Windows PowerShell alternative
 ```
+
+The `--recurse-submodules` flag is critical — without it, `vendor/` shows up empty
+and the bootstrap has nothing to fall back on if `npx skills add` ever fails for
+network reasons.
 
 The bootstrap reads the **Skill repos** table below, runs `npx skills add chirag127/<repo>`
 for each row, then fans this `AGENTS.md` out to every detected agent's instruction file.

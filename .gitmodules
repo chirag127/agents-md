@@ -1,0 +1,6 @@
+[submodule "vendor/skill-agents-md-sync"]
+	path = vendor/skill-agents-md-sync
+	url = https://github.com/chirag127/skill-agents-md-sync
+[submodule "vendor/skill-claude-code-mcq-notes"]
+	path = vendor/skill-claude-code-mcq-notes
+	url = https://github.com/chirag127/skill-claude-code-mcq-notes

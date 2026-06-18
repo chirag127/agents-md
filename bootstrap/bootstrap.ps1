@@ -18,6 +18,12 @@ foreach ($cmd in 'git', 'node', 'npx', 'gh') {
     }
 }
 
+# ---- 1b. Initialise submodules if cloned without --recurse-submodules ----
+if (Test-Path (Join-Path $RepoRoot '.gitmodules')) {
+    Write-Host "==> Ensuring submodules under vendor/ are populated"
+    git -C $RepoRoot submodule update --init --recursive
+}
+
 # ---- 2. Install referenced skills -----------------------------------------
 $skillRepos = Select-String -Path $AgentsMd -Pattern 'chirag127/skill-[a-z0-9-]+' `
     -AllMatches |

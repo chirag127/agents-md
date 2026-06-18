@@ -21,6 +21,13 @@ need node
 need npx
 need gh
 
+# ---- 1b. Initialise submodules if cloned without --recurse-submodules ----
+
+if [[ -f "$REPO_ROOT/.gitmodules" ]]; then
+  echo "==> Ensuring submodules under vendor/ are populated"
+  git -C "$REPO_ROOT" submodule update --init --recursive
+fi
+
 # ---- 2. Install referenced skills ------------------------------------------
 #
 # AGENTS.md has a markdown table whose rows look like:

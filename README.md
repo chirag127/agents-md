@@ -1,28 +1,40 @@
-# agents-md
+# agents-md — single source of truth for everything
 
-Single source of truth for [@chirag127](https://github.com/chirag127)'s global rules
-across every AI coding agent (Claude Code, Codex, Gemini, Cursor, Cline, etc.).
+**The one repo to bookmark. Lose your laptop, clone this, run the bootstrap, you're back.**
 
-The canonical file is **[`AGENTS.md`](./AGENTS.md)**. Every per-agent instruction
-file (`CLAUDE.md`, `GEMINI.md`, `.codex/AGENTS.md`, `.cursor/rules/00-agents.mdc`, …)
-is generated from it by the [`skill-agents-md-sync`][sync] skill, loaded on demand
-via [`npx skills`][skills].
+> 🆘 **In a hurry / new laptop?** → [`RECOVERY.md`](./RECOVERY.md)
 
-[sync]: https://github.com/chirag127/skill-agents-md-sync
-[skills]: https://github.com/vercel-labs/skills
+This repo is the umbrella for [@chirag127](https://github.com/chirag127)'s personal
+AI-coding-agent setup. It holds:
+
+1. The canonical [`AGENTS.md`](./AGENTS.md) — global rules every agent reads.
+2. Every personal skill, vendored as a **git submodule** under [`vendor/`](./vendor/) —
+   so a single `git clone --recurse-submodules` brings the whole world down.
+3. The [`bootstrap/`](./bootstrap/) scripts that wire everything onto a fresh machine.
+
+Per-agent instruction files (`CLAUDE.md`, `GEMINI.md`, `.codex/AGENTS.md`,
+`.cursor/rules/00-agents.mdc`, …) are generated from `AGENTS.md` by the
+[`skill-agents-md-sync`](./vendor/skill-agents-md-sync) skill, which is itself a
+submodule of this repo.
+
+CLI used to fan skills out across all agents:
+[vercel-labs/skills](https://github.com/vercel-labs/skills) (`npx skills`).
 
 ## What's in this repo
 
 ```
 agents-md/
-├── AGENTS.md             ← edit this, never the per-agent files
-├── README.md             ← you are here
+├── AGENTS.md                ← edit this; never the per-agent files
+├── RECOVERY.md              ← read this first on a fresh laptop
+├── README.md                ← you are here
 ├── bootstrap/
-│   ├── bootstrap.sh      ← new-laptop bootstrap (Linux/macOS/Git Bash)
-│   └── bootstrap.ps1     ← new-laptop bootstrap (Windows PowerShell)
-└── .github/
-    └── workflows/
-        └── periodic-sync.yml   ← hourly cron (placeholder; see notes)
+│   ├── bootstrap.sh         ← Linux / macOS / Git Bash
+│   └── bootstrap.ps1        ← Windows PowerShell
+├── vendor/                  ← every personal skill, as submodules
+│   ├── skill-agents-md-sync/
+│   └── skill-claude-code-mcq-notes/
+└── .github/workflows/
+    └── periodic-sync.yml    ← hourly heartbeat (hook point)
 ```
 
 ## How it works
@@ -37,21 +49,27 @@ agents-md/
 ## New laptop / lost laptop recovery
 
 ```bash
-gh repo clone chirag127/agents-md ~/src/agents-md
+gh auth login
+gh repo clone chirag127/agents-md ~/src/agents-md -- --recurse-submodules
 cd ~/src/agents-md
 bash bootstrap/bootstrap.sh       # Linux / macOS / Git Bash on Windows
 # Windows PowerShell users:
 # pwsh bootstrap/bootstrap.ps1
 ```
 
+The `--recurse-submodules` flag is what makes this **the single repo to remember** —
+without it, `vendor/` shows up empty.
+
 The bootstrap script:
 
 1. Verifies prerequisites (`git`, `node`, `npx`, `gh`).
-2. Installs every skill listed in `AGENTS.md`'s "Skill repos" table via
-   `npx skills add chirag127/<repo> -g -a '*'`.
-3. Runs the `agents-md-sync` skill once to symlink (or copy, where symlinks aren't
+2. Initialises any submodules that are still empty (`git submodule update --init --recursive`).
+3. Installs every skill listed in `AGENTS.md`'s "Skill repos" table via
+   `npx skills add chirag127/<repo> -g -a '*'` — falls back to the local submodule
+   under `vendor/<repo>` if the public install ever fails.
+4. Runs the `agents-md-sync` skill once to symlink (or copy, where symlinks aren't
    permitted) `AGENTS.md` into every detected agent's instruction-file path.
-4. Verifies the result and prints a status summary.
+5. Verifies the result and prints a status summary.
 
 Re-running it is safe (idempotent).
 
