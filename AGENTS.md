@@ -1,18 +1,12 @@
 # Global rules for AI coding agents — Chirag Singhal
 
-This file is the **single source of truth** for cross-agent rules across every machine I use.
-Edit it, commit, push.
+This file is the **single source of truth for SHARED rules** across every coding agent on every machine I use. Edit it, commit, push.
 
-> **Architecture:** umbrella → submodules → stubs.
-> The public umbrella [`chirag127/setup`](https://github.com/chirag127/setup) vendors this
-> repo (and every personal skill) as git submodules and runs the bootstrap. Per-agent files
-> in your home directory (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
-> `~/.cursor/rules/00-agents.mdc`, `~/.gemini/GEMINI.md`, `~/.cline/global-rules.md`, etc.)
-> are **6-line stubs** that point at this `AGENTS.md` plus per-agent quirks — not copies of
-> the full content. The agents follow the link.
+> **Architecture:** AGENTS.md (this file) holds shared truths. Each per-agent file (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.cursor/rules/00-agents.mdc`, `~/.gemini/GEMINI.md`, `~/.cline/global-rules.md`, etc.) starts with "Read `~/AGENTS.md` first" and adds **agent-specific** rules on top: model defaults for that agent, known bugs and workarounds, edit-mode preferences, and the skills / MCP servers installed for it.
+>
+> Sources of all per-agent files: `chirag127/agents-md/per-agent/<name>.md`. The skill [`chirag127/skill-agents-md-sync`](https://github.com/chirag127/skill-agents-md-sync) writes them to their canonical home-dir paths.
 
 [skill-sync]: https://github.com/chirag127/skill-agents-md-sync
-[mcq-skill]: https://github.com/chirag127/skill-claude-code-mcq-notes
 
 ---
 
@@ -157,10 +151,7 @@ service. Surface alternatives only when there's a specific reason this default d
 - **CI/CD:** GitHub Actions free minutes only — no paid runners.
 
 ### LLM / AI
-- **Default model:** Claude Opus 4.8 for hard reasoning; Claude Sonnet 4.6 for routine work;
-  Haiku 4.5 for anything cheap-and-fast.
-- **Free LLM aggregator:** chirag127/freellmapi or chirag127/OmniRoute first — only fall
-  back to paid keys if the free tiers are exhausted for that turn.
+- **Free LLM aggregator first:** chirag127/freellmapi or chirag127/OmniRoute. Only fall back to paid keys when the free tiers are exhausted for that turn. Each per-agent file (`per-agent/<name>.md`) names the specific default model and pricing-tier preference for that agent.
 
 ### Free-first policy (stronger form)
 - Always check for free alternatives **before** recommending anything paid: free tiers,
@@ -181,12 +172,9 @@ service. Surface alternatives only when there's a specific reason this default d
 
 ## Known agent-tool quirks I want you to remember
 
-- **Claude Code AskUserQuestion (MCQ) widget can render badly with multi-line previews on
-  Windows TUIs.** Workaround: keep questions ≤ 4 per call (the SDK enforces this), keep
-  option labels short, never put decision-critical context in the assistant text immediately
-  before the call (the picker overlays it). Full investigation in
-  [`skill-claude-code-mcq-notes`][mcq-skill] — load that skill when you're about to use
-  `AskUserQuestion`.
+Per-agent quirks (rendering bugs, sandbox issues, format requirements) live in each agent's own file under [`per-agent/`](./per-agent/) — not here. This section is intentionally short.
+
+- **Defender Exploit Guard ASR** on this Windows machine blocks unsigned native exes downloaded by npm postinstall (rule `01443614-CD74-433A-B99E-2ECDC07BFC25`). `agent-browser` is permanently broken here for this reason. Use `playwright-cli` (signed binaries) or `use-my-browser` for browser automation. This is OS-policy, applies to every agent.
 
 ---
 
@@ -239,3 +227,4 @@ Pinned cross-session decisions (auto-grow this list per the self-update rule):
 - **Free hosting only.** Cloudflare Pages, GitHub Pages, Firebase Spark unless explicitly told otherwise.
 - **AskUserQuestion: batch ≤4 questions per call. No more drip-feed.**
 - **Forks must stay thin.** Personal additions go to sibling repos or `chirag127/setup`, never into a fork's working tree. Goal: zero merge conflicts on `git pull upstream main`. (Decided 2026-06-19 after I bloated `C:\D\skills` with a sync skill, recommendations, and bootstrap files that all belonged in `chirag127/agents-md` and `chirag127/setup`.)
+- **AGENTS.md = shared rules only.** Per-agent rules (model defaults, known bugs, edit-mode prefs, skills/MCP inventory) live in `per-agent/<name>.md` — substantive 4-5 KB files, not stubs. Each per-agent file starts with "Read `~/AGENTS.md` first" then adds its own rules on top. (Decided 2026-06-19; reversed the earlier "AGENTS.md holds everything, per-agent files are tiny pointers" design.)

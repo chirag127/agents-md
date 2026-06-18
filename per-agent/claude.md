@@ -1,10 +1,45 @@
 # Claude Code rules — Chirag Singhal
 
-> **Canonical rules:** see [`~/AGENTS.md`](file://~/AGENTS.md) (or [github.com/chirag127/agents-md](https://github.com/chirag127/agents-md)).
-> Edit only the canonical file; this stub is generated and overwritten on every sync.
+> **Read [`~/AGENTS.md`](file://~/AGENTS.md) first** — that file holds the shared rules across every coding agent. This file adds Claude Code-specific rules on top: model defaults, known bugs and workarounds, edit-mode preferences, and the skills / MCP servers installed for this agent.
 
-## Claude Code-specific quirks
+## Model defaults — which models to use
 
-- **AskUserQuestion (MCQ) widget:** can render imperfectly on Windows TUIs with long previews. Keep ≤4 questions per call (SDK-enforced), short option labels, no decision-critical context in the assistant text immediately before the call (the picker overlays it). Full notes: [`chirag127/skill-claude-code-mcq-notes`](https://github.com/chirag127/skill-claude-code-mcq-notes).
-- **Defender Exploit Guard ASR** on this machine blocks unsigned native exes downloaded by npm postinstall — `agent-browser` is broken here. Use `@playwright/cli` for browser automation instead.
-- **Skills location:** `~/.claude/skills/` (user) and `<repo>/.claude/skills/` (project). Install via `npx skills add chirag127/skill-<name> -g -a claude-code`.
+- **Default routing:** Sonnet 4.6 (`claude-sonnet-4-6`) for routine edits, refactors, README writing, and most repo work. It's the right cost/quality point for ~90% of what I do.
+- **Hard reasoning:** switch to Opus 4.8 (`claude-opus-4-8`) via `/model opus` for: multi-file architectural changes, debugging non-obvious failures, security reviews, anything where a wrong answer wastes >15 min. Also use Opus when the task crosses 3+ unfamiliar files.
+- **Cheap / batch:** Haiku 4.5 (`claude-haiku-4-5-20251001`) via `/fast` for: trivial edits, file renames, mechanical search-and-replace, log triage, "what does this file do" reads. Don't use Haiku for code generation in TypeScript with strict types — it skips edge cases.
+- **Effort knob:** `/effort high` before running `deep-research`, `code-review`, `security-review`, or any verify-then-fix loop. `/effort low` is fine for stub generation and copy-paste tasks.
+- **Never** answer Anthropic-API or model-pricing questions from memory — invoke the `claude-api` skill first.
+
+## Known bugs / quirks / workarounds
+
+- **AskUserQuestion (MCQ) widget** renders imperfectly on Windows Git Bash TUIs when option labels are long or the assistant text immediately before the call carries decision-critical context (the picker overlays it). Keep ≤4 questions per call (SDK-enforced), short option labels, and put the question stem inside the widget — not in the prose above. Full notes and reproductions: [`chirag127/skill-claude-code-mcq-notes`](https://github.com/chirag127/skill-claude-code-mcq-notes).
+- **Defender Exploit Guard ASR** on this machine blocks unsigned native exes downloaded by npm postinstall. `agent-browser` and similar Chromium-bundling packages fail to install with a silent EPERM. Workaround: use the `playwright-cli` skill (Playwright's binaries are signed) or the `use-my-browser` skill to drive my live browser session.
+- **CWD resets between Bash calls in subagent threads** — always pass absolute paths to bash commands; never rely on a previous `cd`.
+- **Compound `cd && ...` commands** can trigger an extra permission prompt in this harness — prefer absolute paths over `cd` chains.
+- **`grep`/`rg`/`cat`/`head`/`sed` via Bash** are slower and noisier than the dedicated Grep/Read tools — reach for those first.
+
+## Edit-mode and tool preferences
+
+- **Edit > Write.** Prefer `Edit` for surgical changes; only `Write` when creating a new file or fully replacing one I've already Read. This matches the AGENTS.md "edit existing files over creating new ones" rule.
+- **Read before Edit, always** — the harness enforces this, but also it prevents stale-match failures.
+- **Batch independent tool calls** in one assistant turn (parallel function calls) — don't serialise reads.
+- **TaskCreate** for any task with 3+ steps; mark `in_progress` before starting and `completed` only when actually done (no partial credit).
+- **Don't write report/summary `.md` files** as a deliverable — return findings inline. Only write markdown when the user asked for a checked-in doc.
+- **Conventional commits, no push without say-so** (per AGENTS.md). Use `gh` for GitHub ops, not the web UI.
+
+## Skills + MCP servers
+
+Skills live in `~/.claude/skills/` (user-global) and `<repo>/.claude/skills/` (project-scoped). Install via:
+
+```bash
+npx skills add chirag127/skill-<name> -g -a claude-code
+```
+
+Currently installed user-global skills I rely on most: `agents-md-sync` (fan-out from the canonical AGENTS.md), `claude-code-mcq-notes`, `code-review`, `security-review`, `verify`, `simplify`, `deep-research`, `playwright-cli`, `use-my-browser`, `webapp-testing`, `frontend-design`, `web-design-reviewer`, `firebase-*` (full Firebase suite), `karpathy-guidelines`, `learn-this`, `session-log`, `skills-cli`, `update-config`, `fewer-permission-prompts`, `claude-api`, `run`, `loop`. Project-scoped skills get added inside the repo via `-a claude-code` without `-g`.
+
+MCP servers are configured in `~/.claude.json` (and per-project `.mcp.json`). Sync the toolbox via `mcp__toolbox__*` — don't hand-edit the JSON if a CLI command exists. When a tool I need isn't in the flat list, call `mcp__toolbox__search_toolbox` before assuming it's missing.
+
+## Where this file lives
+
+- **Source of truth:** `C:\D\agents-md\per-agent\claude.md` (this file).
+- **Deployed copy:** `~/.claude/CLAUDE.md` — generated by [`skill-agents-md-sync`](https://github.com/chirag127/skill-agents-md-sync). **Do not hand-edit the deployed copy**; edit the source above and re-run the sync.
