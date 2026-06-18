@@ -1,38 +1,79 @@
 # Global rules for AI coding agents — Chirag Singhal
 
-This file is the **single source of truth** for cross-agent rules on this machine.
-Edit it, commit, push. Everything else (per-agent CLAUDE.md, GEMINI.md, .codex/AGENTS.md,
-.cursor/rules/*.mdc, etc.) is generated from it by the [`skill-agents-md-sync`][sync]
-skill, which is loaded on demand via the [`npx skills`][skills-cli] CLI.
+This file is the **single source of truth** for cross-agent rules across every machine I use.
+Edit it, commit, push.
 
-This is the **hybrid** architecture: this file stays small. Anything bulky
-(résumé scaffolding, new-laptop bootstrap, etc.) lives as its own skill repo and is
-loaded only when relevant — keeping the session system-prompt context lean.
+> **Architecture:** umbrella → submodules → stubs.
+> The public umbrella [`chirag127/setup`](https://github.com/chirag127/setup) vendors this
+> repo (and every personal skill) as git submodules and runs the bootstrap. Per-agent files
+> in your home directory (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
+> `~/.cursor/rules/00-agents.mdc`, `~/.gemini/GEMINI.md`, `~/.cline/global-rules.md`, etc.)
+> are **6-line stubs** that point at this `AGENTS.md` plus per-agent quirks — not copies of
+> the full content. The agents follow the link.
 
-[sync]: https://github.com/chirag127/skill-agents-md-sync
-[skills-cli]: https://github.com/vercel-labs/skills
+[skill-sync]: https://github.com/chirag127/skill-agents-md-sync
+[mcq-skill]: https://github.com/chirag127/skill-claude-code-mcq-notes
 
 ---
 
-## How to change a rule
+## How you (the agent) update these rules — the self-improving rule
 
-Edit this file (or `<repo>/AGENTS.md` for a project-specific rule). Then either:
+When the user expresses a preference, decision, correction, or constraint that is likely to
+apply across **future sessions** (not just this turn), you should:
 
-```bash
-# Re-fan the global file out to every per-agent path:
-npx skills run chirag127/skill-agents-md-sync
+1. **Propose** a one-line addition to the appropriate file:
+   - Global preference → propose appending to `~/AGENTS.md` (this file's checked-in copy).
+   - Project-specific preference → propose appending to `<repo>/AGENTS.md`.
+2. **Show** the exact line you'd write, with the section heading you'd put it under.
+3. **Wait for confirmation** before writing. A "yes", "ok", "do it", or similar from the
+   user is sufficient — don't ask again later in the session.
+4. **Write** the line, run the sync (`node ~/src/skill-agents-md-sync/scripts/sync-agents.mjs`
+   or via `npx skills run chirag127/skill-agents-md-sync`), and commit with a one-line
+   conventional-commits message. **Do NOT push without separate authorisation.**
 
-# Or, the manual fallback (no skill needed):
-node ~/src/skill-agents-md-sync/scripts/sync-agents.mjs
-```
+Do this proactively. If the user says "I always prefer X" or "never do Y" or "from now on
+do Z", that's a rule worth pinning. Cosmetic preferences ("use this name for this var") are
+not — only rules that span sessions.
 
-A scheduled job pulls/pushes this repo on a schedule for cross-machine sync —
-see the umbrella repo [`chirag127/setup`](https://github.com/chirag127/setup) for the
-bootstrap scripts and CI workflows; this repo is content-only.
+A short bias toward writing: when in doubt, propose. The user can decline. Better to surface
+than silently forget.
 
-**Never hand-edit** any of the per-agent files (`CLAUDE.md`, `GEMINI.md`,
-`.codex/AGENTS.md`, `.cursor/rules/*.mdc`, `.windsurfrules`, `.clinerules`,
-`.continuerules`, `.junie/guidelines.md`, etc.) — the next sync overwrites them.
+---
+
+## Project context — always read the README first
+
+When you enter a repo (or are asked about one) and don't already have context for it:
+
+1. **Read `<repo>/README.md` first.** Every chirag127 repo's README explains what it does,
+   how it fits into the wider system, and how to use it. If the README is missing or stale,
+   say so — don't guess from the directory tree.
+2. **Then read `<repo>/AGENTS.md`** for project-specific rules (it usually has a short
+   "Project shortcuts" section).
+3. **Then look at structure** — `package.json`, `pyproject.toml`, top-level dirs.
+4. **Only then start coding.** No prior step is skippable.
+
+Repos in this system that follow this contract: every public repo under
+[`chirag127/*`](https://github.com/chirag127), especially:
+
+- [`chirag127/setup`](https://github.com/chirag127/setup) — umbrella + bootstrap
+- [`chirag127/agents-md`](https://github.com/chirag127/agents-md) — canonical AGENTS.md (this repo)
+- [`chirag127/skill-agents-md-sync`](https://github.com/chirag127/skill-agents-md-sync) — fan-out skill
+- [`chirag127/skill-claude-code-mcq-notes`](https://github.com/chirag127/skill-claude-code-mcq-notes) — MCQ-bug notes skill
+
+## Always update the README
+
+When you change a repo's behavior, structure, public API, install steps, or anything else
+that contradicts what its `README.md` currently claims, **update the README in the same
+commit as the change**. Stale READMEs are a bug. Specifically:
+
+- New file in the repo's "What's in this repo" tree → update the tree.
+- New flag / mode / command → update the usage section.
+- Renamed file / removed feature → search for and rewrite every mention.
+- New cross-repo dependency → update the "Sister repos" / "Modules" table.
+
+When you propose to add or change a rule via the self-update rule above, include the
+README update in the same proposal. Treat the README as part of the public contract,
+not as documentation that lives separately.
 
 ---
 
@@ -59,25 +100,84 @@ bootstrap scripts and CI workflows; this repo is content-only.
 - **Report failures plainly.** "Tests pass except X, Y" beats "✅ done" when X and Y are broken.
 - **When you don't know, look it up.** Don't guess at API shapes, library versions, or pricing.
 - **Strict TypeScript.** No `any` without a comment + TODO to remove it.
-- **Free first, always.** I want everything free or free-tier — never paid, very rarely paid, and only when I've explicitly said so in the current turn. **Always check for free alternatives** before recommending anything that costs money: free tiers (Cloudflare, Firebase Spark, Vercel Hobby, Supabase free, Turso free, Upstash free, GitHub free, Render free), free open-source equivalents, **GitHub Student Developer Pack** benefits, **Microsoft / Google / AWS Educate** programs, university SSO discounts, and other "free for students / individuals / OSS" plans. If only a paid option exists for what I asked, **say so up front** and propose the cheapest free workaround before quoting prices. Never silently introduce a paid dependency.
 - **Don't commit secrets.** Use `.env.example` + GitHub Actions Secrets + `.env.local` (gitignored).
+  Real secrets live in [`chirag127/secrets`](https://github.com/chirag127/secrets) (private repo).
 - **No `console.log` left in code.** Lint clean.
 - **Conventional commits**, small commits, one concern per commit.
 - **Don't run `git push` or open PRs without my say-so.**
 - **Apply SOLID, DRY, and the rest of the standard software-engineering principles** without
   needing reminders — but don't over-engineer; match the scale of the change.
+- **Ask multiple questions in one batch** via `AskUserQuestion` when possible (max 4 per call).
+  Don't drip-feed single questions across turns when they could be batched.
 
 ---
 
-## Tools and conventions
+## Tech defaults — latest, widely-recognised, free-first
 
-- **Package manager:** `pnpm` (preferred); `npm` only when a tool requires it; `uv` for Python.
-- **Test runner:** `vitest` (TS/JS); `pytest` (Python).
-- **Lint/format:** `biome` (TS/JS); `ruff` (Python).
+When you're choosing tech for a new project or recommending a stack, default to the
+**latest stable release** of each option below, and the **free tier** of every hosted
+service. Surface alternatives only when there's a specific reason this default doesn't fit.
+
+### Languages & runtimes
+- **TypeScript** for any non-trivial JS work; plain JS only for one-file scripts.
+- **Python 3.13+** with type hints for everything beyond a one-shot script.
+- **Node.js LTS** (currently 24.x); never bleed-edge unstable.
+
+### Tooling
+- **Package manager:** `pnpm` (TS/JS, preferred) → `npm` (only when a tool requires it).
+- **Python deps:** `uv` for everything — installs, virtual envs, `pyproject.toml` management.
+- **Test runner:** `vitest` (TS/JS) → `pytest` (Python).
+- **Lint/format:** `biome` (TS/JS, replaces ESLint+Prettier) → `ruff` (Python).
 - **E2E:** Playwright with `chromium-desktop`, `chromium-mobile (Pixel 5)`, `webkit-mobile (iPhone 13)`.
-- **Editors I use:** Claude Code (primary), Codex CLI, Gemini CLI, Cursor (occasional).
-- **Cloud / hosting baseline:** Cloudflare Pages + Cloudflare Workers + Firebase (Auth, Firestore)
-  + Supabase + Turso + Upstash Redis. All free-tier unless I've said so.
+- **Editors:** Claude Code (primary), Codex CLI, Gemini CLI, Cursor (occasional).
+
+### Frontend
+- **Framework:** Astro for content/marketing/blog → React 19 + Vite for app SPAs →
+  Next.js only when SSR/RSC is genuinely needed.
+- **CSS:** Tailwind CSS v4 (utility-first); shadcn/ui for component primitives.
+- **State:** TanStack Query for server state; Zustand for client state. Avoid Redux.
+
+### Backend / hosting (free-tier first, in priority order)
+- **Static + edge functions:** Cloudflare Pages + Cloudflare Workers (free, 100k req/day).
+- **Auth + DB:** Firebase Spark (free tier — Auth, Firestore, Storage).
+- **SQL DB:** Supabase free tier → Turso free tier (libSQL/SQLite at the edge).
+- **KV / cache:** Upstash Redis free tier.
+- **Queues / background:** Cloudflare Queues (free) → Inngest free tier.
+- **Object storage:** Cloudflare R2 free tier (10 GB) → Backblaze B2 (10 GB free).
+- **Domain / DNS:** Cloudflare Registrar (at-cost) or free `.dev` / `.app` via GitHub Student Pack.
+- **CI/CD:** GitHub Actions free minutes only — no paid runners.
+
+### LLM / AI
+- **Default model:** Claude Opus 4.8 for hard reasoning; Claude Sonnet 4.6 for routine work;
+  Haiku 4.5 for anything cheap-and-fast.
+- **Free LLM aggregator:** chirag127/freellmapi or chirag127/OmniRoute first — only fall
+  back to paid keys if the free tiers are exhausted for that turn.
+
+### Free-first policy (stronger form)
+- Always check for free alternatives **before** recommending anything paid: free tiers,
+  free open-source equivalents, GitHub Student Developer Pack benefits, MS / Google / AWS
+  Educate, university SSO discounts, "free for individuals / OSS" plans.
+- If only a paid option exists for what I asked, **say so up front**, propose the cheapest
+  free workaround, and only quote prices after I confirm I'd consider paying.
+- **Never silently introduce a paid dependency.**
+
+### "Latest" enforcement
+- Don't blindly trust your training data for version numbers, prices, or model IDs —
+  **look them up** before recommending. The [`claude-api`](https://docs.anthropic.com)
+  skill / docs are authoritative for Anthropic; npm / PyPI for everything else.
+- When pinning, pin to the latest stable minor at time of writing, not whatever your
+  training cutoff knew about.
+
+---
+
+## Known agent-tool quirks I want you to remember
+
+- **Claude Code AskUserQuestion (MCQ) widget can render badly with multi-line previews on
+  Windows TUIs.** Workaround: keep questions ≤ 4 per call (the SDK enforces this), keep
+  option labels short, never put decision-critical context in the assistant text immediately
+  before the call (the picker overlays it). Full investigation in
+  [`skill-claude-code-mcq-notes`][mcq-skill] — load that skill when you're about to use
+  `AskUserQuestion`.
 
 ---
 
@@ -88,20 +188,10 @@ update, and reuse individually). Install via `npx skills add chirag127/<repo-nam
 
 | Skill | Repo | What it covers |
 |---|---|---|
-| `agents-md-sync` | [chirag127/skill-agents-md-sync](https://github.com/chirag127/skill-agents-md-sync) — also vendored at [`vendor/skill-agents-md-sync`](https://github.com/chirag127/agents-md/tree/main/vendor/skill-agents-md-sync) | Fan-out from this AGENTS.md to per-agent files (CLAUDE.md, GEMINI.md, .codex/AGENTS.md, .cursor/rules, etc.). |
+| `agents-md-sync` | [`chirag127/skill-agents-md-sync`](https://github.com/chirag127/skill-agents-md-sync) | Stub-mode fan-out from this AGENTS.md to per-agent files. |
+| `claude-code-mcq-notes` | [`chirag127/skill-claude-code-mcq-notes`](https://github.com/chirag127/skill-claude-code-mcq-notes) | Claude Code AskUserQuestion rendering bugs and workarounds. |
 
-When I add a skill, I'll add a row here. Bootstrap a fresh laptop with:
-
-```bash
-gh repo clone chirag127/agents-md ~/src/agents-md
-cd ~/src/agents-md
-bash bootstrap/bootstrap.sh        # Linux/macOS/Git Bash
-# or
-pwsh bootstrap/bootstrap.ps1       # Windows PowerShell
-```
-
-That script reads the table above, runs `npx skills add` for each repo, then symlinks
-this `AGENTS.md` into every detected agent's instruction-file path.
+When I add a skill, **propose** appending a row to this table per the self-update rule above.
 
 ---
 
@@ -111,91 +201,31 @@ this `AGENTS.md` into every detected agent's instruction-file path.
 
 - **`chirag127/oriz`** — all-in-one site (finance tools, dev tools, blogs, utilities) at
   [oriz.in](https://oriz.in). Built for Google AdSense approval. See `<repo>/AGENTS.md`.
-
----
-
-## Windows Developer Mode (one-time)
-
-The `agents-md-sync` skill prefers symlinks over copies (single source of truth, edits
-to `~/AGENTS.md` reflect everywhere instantly). On Windows this needs **Developer Mode**.
-
-To enable (one-time, no reboot needed):
-
-```powershell
-# Run as Administrator:
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
-```
-
-Or via UI: `Settings → System → For developers → Developer Mode → On`.
-
-After enabling, re-run the sync to convert copies to symlinks:
-
-```bash
-node ~/src/skill-agents-md-sync/scripts/sync-agents.mjs
-```
-
-If Developer Mode is off, the sync still works — it falls back to file copies. Symlinks
-are the optimisation, not a requirement.
+- **`chirag127/setup`** — public umbrella holding submodules + bootstrap; clone with
+  `--recurse-submodules`. See `<repo>/README.md`.
 
 ---
 
 ## New-laptop / lost-laptop recovery
 
-> 🆘 **One repo to remember:** [`github.com/chirag127/agents-md`](https://github.com/chirag127/agents-md)
->
-> See [`RECOVERY.md`](https://github.com/chirag127/agents-md/blob/main/RECOVERY.md) for the panic-button instructions.
+> 🆘 **One repo to remember:** [`github.com/chirag127/setup`](https://github.com/chirag127/setup)
 
-That repo is the **umbrella**: it pins every personal skill repo as a git submodule
-under `vendor/`, so a single clone with `--recurse-submodules` brings down the entire
-configuration (this AGENTS.md + every skill + the bootstrap). The flow:
-
-```bash
-# 1. Install prereqs manually (~2 min)
-#    - Git for Windows  (includes Git Bash)   https://git-scm.com/download/win
-#    - Node.js LTS                            https://nodejs.org
-#    - GitHub CLI                             https://cli.github.com
-#    - Claude Code                            https://code.claude.com
-
-# 2. Sign in to GitHub
-gh auth login
-
-# 3. Clone (recursively!) and run the bootstrap
-gh repo clone chirag127/agents-md ~/src/agents-md -- --recurse-submodules
-cd ~/src/agents-md
-bash bootstrap/bootstrap.sh        # Linux / macOS / Git Bash on Windows
-# pwsh bootstrap/bootstrap.ps1     # Windows PowerShell alternative
-```
-
-The `--recurse-submodules` flag is critical — without it, `vendor/` shows up empty
-and the bootstrap has nothing to fall back on if `npx skills add` ever fails for
-network reasons.
-
-The bootstrap reads the **Skill repos** table below, runs `npx skills add chirag127/<repo>`
-for each row, then fans this `AGENTS.md` out to every detected agent's instruction file.
-Idempotent — safe to re-run.
-
-**What deliberately doesn't sync** (and why):
-
-- Local secrets / API keys → those go in `.env.local` (gitignored) or GitHub Actions Secrets,
-  never in a public repo.
-- OS-level installations → covered by the prereqs step above.
-- Per-machine `npx skills` state → recreated by the bootstrap.
-
-**Full-machine snapshot is out of scope** for `agents-md`. If I ever want it, the free
-options are OneDrive (5 GB, Windows-native) or Backblaze B2 + Restic (10 GB free tier).
-Flag explicitly and I'll add a separate skill repo for it.
+That repo is the umbrella. Clone it, run `bootstrap.sh` (or `bootstrap.ps1`), it pulls every
+submodule including this one, restores npm/winget/uv packages from `manifests/`, installs
+each personal skill, and fans `AGENTS.md` out to every per-agent file.
 
 ---
 
-## Decisions log (this session)
+## Decisions log
 
-These came up in conversations and are worth keeping pinned:
+Pinned cross-session decisions (auto-grow this list per the self-update rule):
 
-- **Architecture:** hybrid — tiny `AGENTS.md` + per-skill repos, install via `npx skills`.
-- **Repos:** all under `chirag127`, public, one repo per skill.
-- **Sync direction:** bidirectional — pull then push, hourly. Implementation: GitHub Actions
-  cron in this repo (pull side) + manual `git push` from the active machine (push side).
-  No Windows Task Scheduler entry — too fragile, too easy to spawn surprise commits.
-- **Linking:** symlinks where the OS allows (Git Bash + Developer Mode on Windows); plain
-  file copies otherwise. `npx skills` handles this automatically.
-- **Free hosting only.** Cloudflare Pages, GitHub Pages, Firebase Spark.
+- **Architecture:** hybrid — small `AGENTS.md` + per-agent stubs (pointer + quirks, not copies).
+- **Repos:** all personal repos under `chirag127`, public by default, one repo per concern.
+  Private repo `chirag127/secrets` for API keys / `.env` files only.
+- **Disk layout:** every chirag127 repo cloned flat at `C:\D\<repo>` AND vendored as a
+  submodule under `C:\D\setup\vendor\<repo>` for the umbrella to use.
+- **No symlinks for instruction files.** Per-agent files are tiny stubs, not copies, so the
+  symlink-vs-copy debate is moot — every per-agent file's content is small and agent-specific.
+- **Free hosting only.** Cloudflare Pages, GitHub Pages, Firebase Spark unless explicitly told otherwise.
+- **AskUserQuestion: batch ≤4 questions per call. No more drip-feed.**
