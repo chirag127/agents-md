@@ -109,6 +109,15 @@ not as documentation that lives separately.
   needing reminders — but don't over-engineer; match the scale of the change.
 - **Ask multiple questions in one batch** via `AskUserQuestion` when possible (max 4 per call).
   Don't drip-feed single questions across turns when they could be batched.
+- **Forks: keep the diff minimal.** When working in a fork of an upstream repo (anywhere with
+  an `upstream` git remote, or a repo whose origin is `chirag127/<name>` while a sibling
+  upstream exists), do NOT add new top-level files, restructure layout, or modify
+  upstream-tracked files unless the change is itself the contribution being prepared for an
+  upstream PR. Anything ancillary you'd want to add — personal skills, recommendations, custom
+  scripts, project notes — belongs in a sibling repo or in [`chirag127/setup`](https://github.com/chirag127/setup),
+  not in the fork. The test: `git pull upstream main` should never produce a merge conflict.
+  When unsure whether a change qualifies as ancillary, propose moving it to a sibling repo
+  before writing.
 
 ---
 
@@ -229,3 +238,4 @@ Pinned cross-session decisions (auto-grow this list per the self-update rule):
   symlink-vs-copy debate is moot — every per-agent file's content is small and agent-specific.
 - **Free hosting only.** Cloudflare Pages, GitHub Pages, Firebase Spark unless explicitly told otherwise.
 - **AskUserQuestion: batch ≤4 questions per call. No more drip-feed.**
+- **Forks must stay thin.** Personal additions go to sibling repos or `chirag127/setup`, never into a fork's working tree. Goal: zero merge conflicts on `git pull upstream main`. (Decided 2026-06-19 after I bloated `C:\D\skills` with a sync skill, recommendations, and bootstrap files that all belonged in `chirag127/agents-md` and `chirag127/setup`.)
