@@ -29,7 +29,9 @@ needed (npm badge, license, CI status, etc.).
 
 ## GitHub Actions workflow
 
-Commit as `.github/workflows/pages.yml` in the new repo.
+Commit as `.github/workflows/pages.yml` **and** `.github/scripts/readme_to_html.py` in the new repo.
+
+**`.github/workflows/pages.yml`:**
 
 ```yaml
 name: Deploy info site to GitHub Pages
@@ -47,32 +49,7 @@ jobs:
       - name: Convert README to HTML
         run: |
           pip install markdown2 pygments
-          python - <<'PY'
-import markdown2, pathlib, textwrap
-md   = pathlib.Path("README.md").read_text(encoding="utf-8")
-body = markdown2.markdown(md, extras=["fenced-code-blocks","tables","header-ids","strike"])
-title = md.splitlines()[0].lstrip("# ").strip()
-html = textwrap.dedent(f"""
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{title}</title>
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
-<style>
-  body {{ max-width: 860px; margin: 40px auto; padding: 0 20px; }}
-  .repo-links {{ margin-bottom: 1.5rem; }}
-  .repo-links a {{ margin-right: 0.5rem; }}
-</style>
-</head><body class="markdown-body">
-<div class="repo-links">
-  <a href="https://github.com/chirag127/{title.lower().replace(' ', '-')}">GitHub repo</a>
-  <a href="https://github.com/chirag127/{title.lower().replace(' ', '-')}/blob/main/README.md">README source</a>
-</div>
-{body}
-</body></html>
-""").strip()
-pathlib.Path("index.html").write_text(html, encoding="utf-8")
-PY
+          python .github/scripts/readme_to_html.py
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -80,6 +57,44 @@ PY
           publish_dir: .
           publish_branch: gh-pages
           exclude_assets: '.github,*.md,*.yml,*.yaml,*.toml,*.json,*.lock,src,tests'
+```
+
+**`.github/scripts/readme_to_html.py`** (replace `chirag127/REPO` with actual values):
+
+```python
+"""Convert README.md to a styled index.html for the GitHub Pages info site."""
+import markdown2, pathlib, textwrap
+
+REPO = "chirag127/REPO"  # e.g. "chirag127/agents-md"
+PAGES_URL = f"https://chirag127.github.io/{REPO.split('/')[1]}/"
+
+md   = pathlib.Path("README.md").read_text(encoding="utf-8")
+body = markdown2.markdown(md, extras=["fenced-code-blocks","tables","header-ids","strike"])
+title = md.splitlines()[0].lstrip("# ").strip()
+
+html = textwrap.dedent(f"""\
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+<style>
+  body {{ max-width: 860px; margin: 40px auto; padding: 0 20px; }}
+  .repo-links {{ margin-bottom: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }}
+  .repo-links a {{ text-decoration: none; color: #0969da; }}
+</style>
+</head><body class="markdown-body">
+<div class="repo-links">
+  <a href="https://github.com/{REPO}">&#128279; GitHub repo</a>
+  <a href="https://github.com/{REPO}/blob/main/README.md">&#128196; README source</a>
+  <a href="{PAGES_URL}">&#127760; Info site</a>
+</div>
+{{body}}
+</body></html>
+""").replace("{body}", body)
+
+pathlib.Path("index.html").write_text(html, encoding="utf-8")
+print("index.html written.")
 ```
 
 ---
