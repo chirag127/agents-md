@@ -71,6 +71,69 @@ not as documentation that lives separately.
 
 ---
 
+## Persistent knowledge — Open Knowledge Format (OKF)
+
+When a repo accumulates **durable, reusable knowledge** that an agent (or a future me)
+will need to consult repeatedly — schemas, table/column definitions, runbooks, incident
+playbooks, metric definitions, glossaries, join-path notes, deprecation notices, API
+contracts, architecture decisions — capture it as a bundle of OKF-conformant markdown
+files. This is the lingua franca for context that lives alongside code, introduced by
+Google Cloud (Sam McVeety & Amir Hormati, 2026-06-13) and intentionally vendor-neutral.
+
+**Where the bundle lives:** `<repo>/knowledge/` (default), or whatever the repo's
+existing convention already is (`docs/`, `wiki/`, etc.) — don't fight existing layout.
+
+**Shape of the bundle** (per OKF v0.1):
+
+- **One concept per file.** A concept is anything you'd want to look up later: one
+  table, one metric, one runbook, one API. The file path *is* the concept's identity.
+- **Markdown body + YAML frontmatter.** The frontmatter carries the small set of
+  structured fields agents query on; the body is freeform markdown.
+- **Frontmatter fields** (per the v0.1 spec, only `type` is universally required;
+  include the others when meaningful):
+  - `type` — required. e.g. `BigQuery Table`, `Runbook`, `Metric`, `API`, `Decision`.
+  - `title` — human-readable name.
+  - `description` — one-line summary.
+  - `resource` — canonical URL the concept refers to (console link, API endpoint, etc.).
+  - `tags` — array of free-form tags.
+  - `timestamp` — ISO-8601, last meaningful update.
+- **Reserved filenames:** `index.md` (overview / progressive disclosure for a
+  directory), `log.md` (chronological history of changes for a concept).
+- **Cross-links are normal markdown links** to other concept files
+  (`[customers](/tables/customers.md)`) — that turns the bundle into a graph.
+
+**Example:**
+
+```
+knowledge/
+├── index.md
+├── tables/
+│   ├── index.md
+│   └── orders.md         # frontmatter: type, title, description, resource, tags, timestamp
+└── runbooks/
+    ├── index.md
+    └── deploy-rollback.md
+```
+
+**This rule does NOT override "don't write report/summary `.md` files":** ephemeral
+findings (one-off review summaries, ad-hoc analyses, "what does this do" answers)
+still go inline in the chat. OKF is for the long-lived, queryable knowledge layer.
+The test: *will I or another agent want to look this up again next week?* If yes →
+OKF concept file. If no → inline.
+
+**Consume opportunistically, produce when justified:** when entering a repo, check
+`knowledge/` (or equivalent) before re-deriving facts. When a piece of durable
+knowledge surfaces during work and isn't yet captured, propose a new concept file
+under the self-update rule (same flow as adding a rule to AGENTS.md).
+
+**Spec reference:** Google Cloud blog post *"Introducing the Open Knowledge Format"*
+(2026-06-13). The spec, reference enrichment agent, static HTML visualizer, and
+sample bundles (GA4 e-commerce, Stack Overflow, Bitcoin) are published in the open;
+GitHub repo URL to be filled in after first verification from a network-enabled
+session — `[[okf-repo-url]]` is a TODO until then.
+
+---
+
 ## About me
 
 - **Name:** Chirag Singhal
@@ -228,3 +291,4 @@ Pinned cross-session decisions (auto-grow this list per the self-update rule):
 - **AskUserQuestion: batch ≤4 questions per call. No more drip-feed.**
 - **Forks must stay thin.** Personal additions go to sibling repos or `chirag127/setup`, never into a fork's working tree. Goal: zero merge conflicts on `git pull upstream main`. (Decided 2026-06-19 after I bloated `C:\D\skills` with a sync skill, recommendations, and bootstrap files that all belonged in `chirag127/agents-md` and `chirag127/setup`.)
 - **AGENTS.md = shared rules only.** Per-agent rules (model defaults, known bugs, edit-mode prefs, skills/MCP inventory) live in `per-agent/<name>.md` — substantive 4-5 KB files, not stubs. Each per-agent file starts with "Read `~/AGENTS.md` first" then adds its own rules on top. (Decided 2026-06-19; reversed the earlier "AGENTS.md holds everything, per-agent files are tiny pointers" design.)
+- **Open Knowledge Format (OKF) for durable knowledge.** When a repo grows knowledge worth re-consulting (schemas, runbooks, metrics, decisions), capture it as an OKF v0.1 bundle: one concept per markdown file with YAML frontmatter (`type` required; `title`/`description`/`resource`/`tags`/`timestamp` when meaningful), `index.md`/`log.md` reserved, cross-linked via normal markdown links. Ephemeral findings still go inline — OKF is for the queryable, long-lived layer. (Decided 2026-06-19, after Google Cloud's OKF v0.1 announcement on the same date; format is vendor-neutral and intended as a lingua franca across agents and catalogs.)
