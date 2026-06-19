@@ -126,11 +126,10 @@ OKF concept file. If no → inline.
 knowledge surfaces during work and isn't yet captured, propose a new concept file
 under the self-update rule (same flow as adding a rule to AGENTS.md).
 
-**Spec reference:** Google Cloud blog post *"Introducing the Open Knowledge Format"*
-(2026-06-13). The spec lives at
-[`GoogleCloudPlatform/knowledge-catalog — okf/SPEC.md`](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md).
-The reference enrichment agent, static HTML visualizer, and sample bundles (GA4
-e-commerce, Stack Overflow, Bitcoin) are in the same repo under `okf/`.
+**Spec reference:**
+- Spec: [`GoogleCloudPlatform/knowledge-catalog — okf/SPEC.md`](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+- Blog: [*Introducing the Open Knowledge Format* — Google Cloud, 2026-06-13](https://cloud.google.com/blog/products/data-analytics/introducing-the-open-knowledge-format)
+- The reference enrichment agent, static HTML visualizer, and sample bundles (GA4 e-commerce, Stack Overflow, Bitcoin) are in the same repo under `okf/`.
 
 ---
 
@@ -178,76 +177,26 @@ e-commerce, Stack Overflow, Bitcoin) are in the same repo under `okf/`.
 - **Every new repository gets a GitHub Pages info site — always separate from the repo's own
   content.** Even if the repo itself is a website or web app, it still needs a separate info
   site about the project. The two must never be conflated:
-  - **Repo's own site** — whatever the project ships (app, library docs, tool UI). Lives where
-    it makes sense for that project (`main` branch build output, Cloudflare Pages, etc.).
-  - **Info site** — a lightweight, always-present project page that explains what the repo is,
-    how to install/use it, and links to the repo. This is the one this rule mandates.
+  - **Repo's own site** — whatever the project ships (app, library docs, tool UI).
+  - **Info site** — a lightweight project page that explains what the repo is, how to use it,
+    and links to both the GitHub repo and the live site (if any). This is the one this rule mandates.
 
-  **Info-site setup (do this for every new repo):**
-  1. **Branch:** use a dedicated `gh-pages` branch (not `docs/` on `main` — that pollutes the
-     working tree and conflicts with repos that are themselves websites).
-  2. **Minimum viable content:** convert `README.md` → styled `index.html` automatically via a
-     GitHub Actions workflow (see template below). No manual HTML authoring required — the
-     README is the source of truth; the workflow re-renders it on every push to `main`.
-  3. **Enable Pages in repo settings:** Settings → Pages → Source: "Deploy from a branch" →
-     branch `gh-pages`, folder `/ (root)`. Do this via `gh api` (see command below) so it is
-     scripted, not a manual click.
-  4. **Link the Pages URL** in the repo's About section (`gh repo edit --homepage`) and as a
-     badge or link at the top of `README.md`.
+  **Setup (do this for every new repo):**
+  1. **Branch:** dedicated `gh-pages` branch (not `docs/` on `main`).
+  2. **Content:** commit `.github/workflows/pages.yml` — a GH Actions workflow that converts
+     `README.md` → styled `index.html` (via `markdown2` + `github-markdown-css`) on every
+     push to `main`. No manual HTML authoring required.
+  3. **Enable Pages:** run the `gh api` one-liner to set source to `gh-pages` branch root.
+  4. **README links:** every new repo's `README.md` must include **both** a GitHub-repo badge
+     and an info-site badge near the top. The info-site rendered page must itself link back to
+     the GitHub repo URL and to the project's own website (if one exists separately).
 
-  **GitHub Actions workflow template** (commit as `.github/workflows/pages.yml`):
+  Full workflow YAML, `gh api` commands, badge templates, and a setup checklist:
+  → **`per-agent/github-pages-workflow.md`** in this repo.
 
-  ```yaml
-  name: Deploy info site to GitHub Pages
-  on:
-    push:
-      branches: [main]
-    workflow_dispatch:
-  permissions:
-    contents: write
-  jobs:
-    deploy:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - name: Convert README to HTML
-          run: |
-            pip install markdown2 pygments
-            python - <<'PY'
-  import markdown2, pathlib, textwrap
-  md  = pathlib.Path("README.md").read_text(encoding="utf-8")
-  body = markdown2.markdown(md, extras=["fenced-code-blocks","tables","header-ids","strike"])
-  title = md.splitlines()[0].lstrip("# ").strip()
-  html = textwrap.dedent(f"""
-  <!doctype html><html lang="en"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{title}</title>
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
-  <style>body{{max-width:860px;margin:40px auto;padding:0 20px}}}</style>
-  </head><body class="markdown-body">{body}</body></html>
-  """).strip()
-  pathlib.Path("index.html").write_text(html, encoding="utf-8")
-  PY
-        - name: Deploy to gh-pages
-          uses: peaceiris/actions-gh-pages@v4
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: .
-            publish_branch: gh-pages
-            exclude_assets: '.github,*.md,*.yml,*.yaml,*.toml,*.json,*.lock,src,tests'
-  ```
-
-  **Enable Pages via CLI** (run once after the first workflow push):
-  ```bash
-  gh api repos/{owner}/{repo}/pages \
-    --method POST \
-    --field source='{"branch":"gh-pages","path":"/"}' \
-    2>/dev/null || \
-  gh api repos/{owner}/{repo}/pages \
-    --method PUT \
-    --field source='{"branch":"gh-pages","path":"/"}'
-  ```
+  **OKF spec + project links** (add to every repo that references OKF):
+  - Spec: [`GoogleCloudPlatform/knowledge-catalog — okf/SPEC.md`](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+  - Blog: [*Introducing the Open Knowledge Format* (2026-06-13)](https://cloud.google.com/blog/products/data-analytics/introducing-the-open-knowledge-format)
 
   **Forks are exempt** — do not add Pages to a fork unless the change is being upstreamed.
 

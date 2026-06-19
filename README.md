@@ -1,5 +1,7 @@
 # agents-md
 
+[![GitHub repo](https://img.shields.io/badge/GitHub-chirag127%2Fagents--md-181717?logo=github)](https://github.com/chirag127/agents-md)
+[![Info site](https://img.shields.io/badge/Info%20site-GitHub%20Pages-0969da)](https://chirag127.github.io/agents-md/)
 [![Public](https://img.shields.io/badge/visibility-public-brightgreen)](https://github.com/chirag127/agents-md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
@@ -33,12 +35,19 @@ agents-md/
 │   ├── aider.md           → ~/CONVENTIONS.md
 │   ├── junie.md           → ~/.junie/guidelines.md
 │   ├── copilot.md         → <repo>/.github/copilot-instructions.md (project only)
+│   ├── github-pages-workflow.md  ← reusable GH Pages workflow + CLI template
 │   └── README.md          ← describes the per-agent stub contract
 ├── README.md              ← you are here
 └── LICENSE
 ```
 
 This is a **content-only repo**. No scripts, no submodules, no CI workflows — those live in the umbrella [`chirag127/setup`](https://github.com/chirag127/setup).
+
+> **Standards referenced:** rules in `AGENTS.md` follow the
+> [Open Knowledge Format (OKF) v0.1](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+> for durable knowledge bundles, and mandate a
+> [GitHub Pages info site](https://chirag127.github.io/agents-md/) for every new repo.
+> OKF was introduced by Google Cloud on [2026-06-13](https://cloud.google.com/blog/products/data-analytics/introducing-the-open-knowledge-format).
 
 ## Usage — for the user
 
