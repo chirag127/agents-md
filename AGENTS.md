@@ -127,10 +127,10 @@ knowledge surfaces during work and isn't yet captured, propose a new concept fil
 under the self-update rule (same flow as adding a rule to AGENTS.md).
 
 **Spec reference:** Google Cloud blog post *"Introducing the Open Knowledge Format"*
-(2026-06-13). The spec, reference enrichment agent, static HTML visualizer, and
-sample bundles (GA4 e-commerce, Stack Overflow, Bitcoin) are published in the open;
-GitHub repo URL to be filled in after first verification from a network-enabled
-session — `[[okf-repo-url]]` is a TODO until then.
+(2026-06-13). The spec lives at
+[`GoogleCloudPlatform/knowledge-catalog — okf/SPEC.md`](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md).
+The reference enrichment agent, static HTML visualizer, and sample bundles (GA4
+e-commerce, Stack Overflow, Bitcoin) are in the same repo under `okf/`.
 
 ---
 
