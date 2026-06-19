@@ -26,8 +26,9 @@
 
 ## Skills + MCP servers
 
-- **Skills:** Junie does not currently load Anthropic-style skills or `bunx skills` packages. The `chirag127/skill-agents-md-sync` skill runs **outside** Junie and writes `.junie/guidelines.md` into each repo — that's the only integration point.
+- **Skills:** Junie does not currently load Anthropic-style skills or `bunx skills` packages. The `chirag127/skill-agents-md-sync` skill runs **outside** Junie and writes `.junie/guidelines.md` into each repo — that's the only integration point. The full 36-skill global inventory is in `per-agent/claude.md`.
 - **MCP servers:** Junie added MCP client support in the 2025.x line. Configure per-project via `.junie/mcp.json` (same JSON shape as Claude Code's `mcpServers`). Keep the server list short — Junie loads every tool into the same prompt and longer lists slow it down. Default minimum: `filesystem` (scoped to repo root) and `git`. Add `playwright` only for repos that actually run E2E.
+- **OKF knowledge bundles:** per `~/AGENTS.md`, durable repo knowledge is captured as `knowledge/` OKF v0.1 bundles. Because Junie has no global config, the `knowledge/` dir is the practical knowledge layer for per-repo context. Include a note in `.junie/guidelines.md` pointing Junie at `knowledge/index.md` at task start.
 - Run `node ~/src/skill-agents-md-sync/scripts/sync-agents.mjs` after editing this file to push changes to every repo's `.junie/guidelines.md`.
 
 ## Where this file lives

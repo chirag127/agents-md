@@ -34,7 +34,9 @@ Continue's MCP support is configured under `mcpServers:` in `config.yaml`. Recom
 - **github** — `npx -y @modelcontextprotocol/server-github`, env `GITHUB_PERSONAL_ACCESS_TOKEN` from [`chirag127/secrets`](https://github.com/chirag127/secrets).
 - **fetch** — `uvx mcp-server-fetch` for pulling docs/URLs into context.
 
-Skills are not a first-class Continue concept the way they are in Claude Code; the closest equivalent is the `prompts:` section of `config.yaml`. Mirror the most-used Claude Code skills (e.g. README-first, conventional commits) as named prompts here.
+Skills are not a first-class Continue concept; the closest equivalent is the `prompts:` section of `config.yaml`. Mirror the most-used Claude Code skills (README-first, conventional commits) as named prompts here. The full 36-skill global inventory is in `per-agent/claude.md`.
+
+**OKF knowledge bundles:** per `~/AGENTS.md`, durable repo knowledge (schemas, runbooks, metrics, decisions) is captured as `knowledge/` OKF v0.1 bundles. When entering a repo in Continue, reference `@file:knowledge/index.md` to surface the context layer before asking architecture questions.
 
 ## Where this file lives
 

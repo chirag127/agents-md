@@ -35,7 +35,52 @@ Skills live in `~/.claude/skills/` (user-global) and `<repo>/.claude/skills/` (p
 npx skills add chirag127/skill-<name> -g -a claude-code
 ```
 
-Currently installed user-global skills I rely on most: `agents-md-sync` (fan-out from the canonical AGENTS.md), `claude-code-mcq-notes`, `code-review`, `security-review`, `verify`, `simplify`, `deep-research`, `playwright-cli`, `use-my-browser`, `webapp-testing`, `frontend-design`, `web-design-reviewer`, `firebase-*` (full Firebase suite), `karpathy-guidelines`, `learn-this`, `session-log`, `skills-cli`, `update-config`, `fewer-permission-prompts`, `claude-api`, `run`, `loop`. Project-scoped skills get added inside the repo via `-a claude-code` without `-g`.
+All globally installed skills are wired to Claude Code and live in `~/.claude/skills/`. Full inventory (36 skills):
+
+| Skill | Purpose |
+|---|---|
+| `article-extractor` | Extract clean article content from URLs |
+| `develop-userscripts` | Build and manage userscripts |
+| `firebase-ai-logic-basics` | Firebase AI Logic / Gemini API integration |
+| `firebase-app-hosting-basics` | Firebase App Hosting setup |
+| `firebase-auth-basics` | Firebase Authentication |
+| `firebase-basics` | Core Firebase setup |
+| `firebase-crashlytics` | Crashlytics integration |
+| `firebase-data-connect` | Firebase Data Connect |
+| `firebase-firestore` | Firestore queries + security rules |
+| `firebase-hosting-basics` | Firebase Hosting deploys |
+| `firebase-remote-config-basics` | Remote Config |
+| `firebase-security-rules-auditor` | Audit Firestore/Storage rules |
+| `frontend-design` | UI/UX component design patterns |
+| `github-actions-docs` | GitHub Actions reference |
+| `karpathy-guidelines` | Andrej Karpathy's agent/LLM wiki guidelines |
+| `learn-this` | Deep-learn any topic |
+| `openclaw-secure-linux-cloud` | Secure Linux cloud setup |
+| `opensource-guide-coach` | Open-source contribution guidance |
+| `playwright-cli` | Browser automation via Playwright (signed binaries — use over agent-browser on this machine) |
+| `readme-i18n` | Translate README to multiple languages |
+| `running-claude-code-via-litellm-copilot` | Run Claude Code through LiteLLM/Copilot proxy |
+| `scrum-sage` | Scrum/agile facilitation |
+| `secure-linux-web-hosting` | Secure Linux web server setup |
+| `session-log` | Log session summaries |
+| `ship-learn-next` | Ship + learn Next.js projects |
+| `skills-cli` | Manage the skills CLI itself |
+| `smithery-ai-cli` | Smithery AI CLI usage |
+| `tzst` | Timezone + scheduling helper |
+| `unblock-action` | Unblock stuck GitHub Actions |
+| `use-my-browser` | Drive the user's live browser session (for auth-walled / localhost pages) |
+| `web-design-reviewer` | Review web design for UX/accessibility |
+| `webapp-testing` | Full web app testing workflows |
+| `xcode-project-setup` | Xcode project scaffolding |
+| `xdrop` | File drop / transfer utility |
+| `xget` | Fast file fetch utility |
+| `youtube-transcript` | Extract YouTube transcripts |
+
+Additional skills installed from `chirag127/*` (invoked via `/skill-name` or the Skill tool): `agents-md-sync`, `claude-code-mcq-notes`, `code-review`, `security-review`, `verify`, `simplify`, `deep-research`, `update-config`, `fewer-permission-prompts`, `claude-api`, `run`, `loop`, `init`, `review`, `security-review`, `keybindings-help`.
+
+Project-scoped skills get added inside the repo via `npx skills add <source> -a claude-code` without `-g`.
+
+**OKF knowledge bundles:** when a repo grows durable knowledge worth re-consulting (schemas, runbooks, metric definitions, architecture decisions), capture it as `knowledge/` OKF bundle per the `~/AGENTS.md` rule. Check `knowledge/` before re-deriving facts; propose new concept files under the self-update rule when useful knowledge surfaces.
 
 MCP servers are configured in `~/.claude.json` (and per-project `.mcp.json`). Sync the toolbox via `mcp__toolbox__*` — don't hand-edit the JSON if a CLI command exists. When a tool I need isn't in the flat list, call `mcp__toolbox__search_toolbox` before assuming it's missing.
 

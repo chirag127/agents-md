@@ -33,7 +33,8 @@
   - `context7` — `npx -y @upstash/context7-mcp` — pulls live docs for libraries instead of guessing API shape.
   - `playwright` — `npx -y @playwright/mcp` — for browser-driven verification, paired with the global `playwright-cli` workflow.
   - `github` — `npx -y @modelcontextprotocol/server-github` with a fine-grained PAT for `chirag127/*` — needed for PR review / issue triage from the CLI.
-- **Skills** are not a Codex-native concept; the personal skill repos (`skill-agents-md-sync`, `skill-claude-code-mcq-notes`) are invoked here as plain `npx skills run <repo>` calls or by reading their `SKILL.md` directly.
+- **Skills** are not a Codex-native concept; the personal skill repos (`skill-agents-md-sync`, `skill-claude-code-mcq-notes`) are invoked here as plain `npx skills run <repo>` calls or by reading their `SKILL.md` directly. The full 36-skill global inventory (article-extractor, firebase-*, frontend-design, playwright-cli, use-my-browser, webapp-testing, web-design-reviewer, karpathy-guidelines, learn-this, session-log, skills-cli, youtube-transcript, and more) is documented in `per-agent/claude.md`.
+- **OKF knowledge bundles:** per `~/AGENTS.md`, durable repo knowledge (schemas, runbooks, metrics, decisions) is captured as `knowledge/` OKF v0.1 bundles. Check `knowledge/` before re-deriving facts when entering a repo.
 
 ## Where this file lives
 

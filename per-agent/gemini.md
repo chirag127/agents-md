@@ -31,8 +31,10 @@
 ## Skills + MCP servers
 
 - **skill-agents-md-sync** — fan-out script that regenerates `~/.gemini/GEMINI.md` from `C:\D\agents-md`. Run via `node ~/src/skill-agents-md-sync/scripts/sync-agents.mjs` or `npx skills run chirag127/skill-agents-md-sync` after editing the canonical `AGENTS.md`.
+- **Full skills inventory** lives in `per-agent/claude.md`; those 36 skills are all wired globally. For Gemini CLI, invoke them via `npx skills run <name>` or read their `SKILL.md` directly.
 - **MCP servers:** Gemini CLI supports MCP via its `mcpServers` config block in `~/.gemini/settings.json`. Install per server with the standard `npx -y @modelcontextprotocol/server-<name>` invocation; mirror whatever's in the Claude Code MCP config when reasonable so the two agents see the same tools.
 - **No MCP server should require a paid API key by default** — free-first policy applies here too.
+- **OKF knowledge bundles:** per `~/AGENTS.md`, capture durable repo knowledge (schemas, runbooks, metrics, decisions) as `knowledge/` OKF v0.1 bundles. Check `knowledge/` before re-deriving facts when entering a repo.
 
 ## Where this file lives
 

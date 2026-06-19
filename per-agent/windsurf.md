@@ -36,7 +36,8 @@ Windsurf's MCP support reads `~/.codeium/windsurf/mcp_config.json`. Keep this li
 - **Filesystem MCP** scoped to `C:\D` only — never the whole drive.
 - **Context7 MCP** (`@upstash/context7-mcp`) — fresh library docs; pairs well with the free-first stack defaults.
 - **Playwright MCP** (`@playwright/mcp`) — browser automation for the e2e profile defined in `~/AGENTS.md`.
-- Personal skills installed via `bunx skills add chirag127/<name>`: `skill-agents-md-sync`, `skill-claude-code-mcq-notes`. The sync skill keeps this file in lockstep with the canonical source.
+- Personal skills installed via `bunx skills add chirag127/<name>`: `skill-agents-md-sync`, `skill-claude-code-mcq-notes`. The full 36-skill global inventory is documented in `per-agent/claude.md`; invoke others via `.windsurf/workflows/*.md` as needed. The sync skill keeps this file in lockstep with the canonical source.
+- **OKF knowledge bundles:** per `~/AGENTS.md`, capture durable repo knowledge (schemas, runbooks, metrics, decisions) as `knowledge/` OKF v0.1 bundles. Check `knowledge/` before re-deriving facts when entering a repo.
 
 ## Where this file lives
 

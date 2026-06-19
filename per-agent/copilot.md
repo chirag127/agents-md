@@ -34,7 +34,8 @@ Copilot in VS Code supports MCP servers via `.vscode/mcp.json` (workspace) or us
 - **GitHub MCP** (built-in via Copilot) — issues, PRs, repo search. Already wired.
 - **Context7** — `npx -y @upstash/context7-mcp` — up-to-date library docs, avoids hallucinated APIs.
 - **Playwright MCP** — `npx -y @playwright/mcp@latest` — browser automation, only enable per-workspace when needed.
-- No global "skills" system like Claude Code; reusable rules go in `.github/instructions/*.instructions.md` per repo, or in `chirag127/setup` for cross-repo snippets.
+- No global "skills" system like Claude Code; reusable rules go in `.github/instructions/*.instructions.md` per repo, or in `chirag127/setup` for cross-repo snippets. The full 36-skill global inventory is in `per-agent/claude.md`.
+- **OKF knowledge bundles:** per `~/AGENTS.md`, durable repo knowledge (schemas, runbooks, metrics, decisions) is captured as `knowledge/` OKF v0.1 bundles. Reference `#file:knowledge/index.md` in Copilot Chat to pull in context before architecture or refactor tasks.
 
 ## Where this file lives
 

@@ -36,7 +36,8 @@ alwaysApply: true
 
 Cursor speaks MCP via `~/.cursor/mcp.json` (user-global) or `<repo>/.cursor/mcp.json` (per-project). Keep secrets out of the per-project file — reference env vars instead.
 
-- **Personal skills** are not installed into Cursor directly; they live in [`chirag127/setup`](https://github.com/chirag127/setup) and are invoked from Claude Code. For Cursor, replicate the behaviour as `.cursor/rules/*.mdc` snippets when needed.
+- **Personal skills** are not installed into Cursor directly; they live in [`chirag127/setup`](https://github.com/chirag127/setup) and are invoked from Claude Code. The full 36-skill global inventory is in `per-agent/claude.md`; replicate useful ones as `.cursor/rules/*.mdc` snippets when needed inside Cursor.
+- **OKF knowledge bundles:** per `~/AGENTS.md`, durable repo knowledge (schemas, runbooks, metrics, decisions) is captured as `knowledge/` OKF v0.1 bundles. Check `knowledge/` when entering an unfamiliar repo before asking Cursor to re-derive facts that may already be documented.
 - **Recommended MCP servers** (install via the Cursor settings UI → MCP, or hand-edit `~/.cursor/mcp.json`):
   - `@modelcontextprotocol/server-github` — repo / issue / PR access (`GITHUB_PERSONAL_ACCESS_TOKEN` from `chirag127/secrets`).
   - `@modelcontextprotocol/server-filesystem` — scoped to `C:\D` only; never the whole drive.
