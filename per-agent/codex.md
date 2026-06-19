@@ -1,0 +1,42 @@
+# OpenAI Codex CLI rules — Chirag Singhal
+
+> **Read [`~/AGENTS.md`](file://~/AGENTS.md) first** — that file holds the shared rules across every coding agent. This file adds Codex-specific rules on top: model defaults, known bugs and workarounds, edit-mode preferences, and the skills / MCP servers installed for this agent.
+
+## Model defaults — which models to use
+
+- **Default model:** `gpt-5` (or whatever `gpt-5-codex` alias resolves to in the current Codex CLI release). Set via `model = "gpt-5"` in `~/.codex/config.toml`, or `codex --model gpt-5` per-invocation.
+- **Reasoning effort:** `model_reasoning_effort = "medium"` for normal work; bump to `"high"` for hard refactors, debugging, or planning a multi-file change. Drop to `"low"` for trivial edits to keep latency down.
+- **Fallback for long-context / cheap tasks:** `o4-mini` or `gpt-5-mini` (verify exact ID with `codex --help` — IDs drift). Use for batch refactors over a single file or routine doc edits.
+- **Auth:** ChatGPT Plus / Pro login is preferred over a raw API key when available — billing comes out of the subscription instead of pay-as-you-go. `codex login` to switch.
+- **Never** hardcode model IDs into committed scripts; reference them from `~/.codex/config.toml` so a model rename is a one-file fix.
+
+## Known bugs / quirks / workarounds
+
+- **Sandbox blocks Git Bash tools by default on Windows.** Symptom: commands like `rg`, `gh`, `pnpm`, `uv` get denied or hang waiting for approval. Workaround: in `~/.codex/config.toml`, set `sandbox_mode = "workspace-write"` and add an explicit allowlist under `[sandbox.allowed_commands]` for `bash`, `git`, `gh`, `node`, `pnpm`, `npm`, `npx`, `python`, `uv`, `rg`, `cargo`. Re-deny network-touching commands case-by-case.
+- **Defender ASR vs npm postinstall.** Same OS-level issue as the other agents — unsigned native binaries from `node_modules/.../bin/*.exe` get blocked by Exploit Guard. Workaround: prefer `pnpm` (uses symlinks, fewer launched exes), or run the install once in an Exploit-Guard-exempted folder, then copy the resolved `node_modules` out.
+- **`AGENTS.md` discovery is upward-walking.** Codex reads `AGENTS.md` from the cwd up through ancestors plus `~/.codex/AGENTS.md`. Don't expect a project-local `AGENTS.md` to *replace* the global one — they merge, with project rules winning on conflict.
+- **Approval prompts loop on long pipelines.** If a single shell line chains 5+ commands, Codex will ask per command. Split into a script when this gets noisy.
+- **`apply_patch` rejects CRLF.** Save patches with LF endings; `git config core.autocrlf input` in this repo if Windows keeps converting them.
+
+## Edit-mode and tool preferences
+
+- **Approval policy:** `approval_policy = "on-request"` in `config.toml` — Codex asks before destructive ops, runs reads freely. Override to `"never"` only inside throwaway sandboxes.
+- **Use `apply_patch` for multi-file edits**, not freeform shell heredocs — Codex's diff renderer handles `apply_patch` blocks cleanly and the user sees a real diff.
+- **Prefer `update_plan` for any task with 3+ steps** so the plan is visible in the TUI, matching the global "report failures plainly" rule.
+- **Never `git push` or open PRs** without explicit say-so — same rule as `~/AGENTS.md`. Codex's auto-mode will try; keep `approval_policy` strict enough to catch it.
+- **TUI-only artefacts:** don't write `.md` summary/report files at the end of a task. Return findings inline.
+
+## Skills + MCP servers
+
+- **MCP config lives in `~/.codex/config.toml`** under `[mcp_servers.<name>]` blocks. Codex speaks MCP natively — same servers as Claude Code, just configured in TOML instead of JSON.
+- **Servers worth wiring up here:**
+  - `context7` — `npx -y @upstash/context7-mcp` — pulls live docs for libraries instead of guessing API shape.
+  - `playwright` — `npx -y @playwright/mcp` — for browser-driven verification, paired with the global `playwright-cli` workflow.
+  - `github` — `npx -y @modelcontextprotocol/server-github` with a fine-grained PAT for `chirag127/*` — needed for PR review / issue triage from the CLI.
+- **Skills** are not a Codex-native concept; the personal skill repos (`skill-agents-md-sync`, `skill-claude-code-mcq-notes`) are invoked here as plain `npx skills run <repo>` calls or by reading their `SKILL.md` directly. The full 36-skill global inventory (article-extractor, firebase-*, frontend-design, playwright-cli, use-my-browser, webapp-testing, web-design-reviewer, karpathy-guidelines, learn-this, session-log, skills-cli, youtube-transcript, and more) is documented in `per-agent/claude.md`.
+- **OKF knowledge bundles:** per `~/AGENTS.md`, durable repo knowledge (schemas, runbooks, metrics, decisions) is captured as `knowledge/` OKF v0.1 bundles. Check `knowledge/` before re-deriving facts when entering a repo.
+
+## Where this file lives
+
+- Canonical path on disk: `~/.codex/AGENTS.md` (synced to `C:\Users\<user>\.codex\AGENTS.md` on Windows).
+- This file is generated by [`skill-agents-md-sync`](https://github.com/chirag127/skill-agents-md-sync) and overwritten on every sync — do not hand-edit. Edit the source at `C:\D\agents-md\per-agent\codex.md` and re-run the sync.

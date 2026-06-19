@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>agents-md</title>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+<style>
+  body { max-width: 860px; margin: 40px auto; padding: 0 20px; }
+  .repo-links { margin-bottom: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .repo-links a { text-decoration: none; color: #0969da; }
+  .repo-links a:hover { text-decoration: underline; }
+</style>
+</head>
+<body class="markdown-body">
+<div class="repo-links">
+  <a href="https://github.com/chirag127/agents-md">&#128279; GitHub repo</a>
+  <a href="https://github.com/chirag127/agents-md/blob/main/AGENTS.md">&#128196; AGENTS.md</a>
+  <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md">&#128218; OKF spec</a>
+</div>
+<h1 id="agents-md">agents-md</h1>
+
+<p><a href="https://github.com/chirag127/agents-md"><img src="https://img.shields.io/badge/GitHub-chirag127%2Fagents--md-181717?logo=github" alt="GitHub repo" /></a>
+<a href="https://chirag127.github.io/agents-md/"><img src="https://img.shields.io/badge/Info%20site-GitHub%20Pages-0969da" alt="Info site" /></a>
+<a href="https://github.com/chirag127/agents-md"><img src="https://img.shields.io/badge/visibility-public-brightgreen" alt="Public" /></a>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT" /></a></p>
+
+<p><strong>Canonical <code>AGENTS.md</code> for <a href="https://github.com/chirag127">@chirag127</a></strong> — the single source of truth for personal rules across every AI coding agent (Claude Code, Codex CLI, Gemini CLI, Cursor, Cline, Continue, Windsurf, Copilot, Aider, Junie, …).</p>
+
+<h2 id="what-this-repo-is-for">What this repo is for</h2>
+
+<p>Most AI coding agents read a per-tool instruction file: <code>~/.claude/CLAUDE.md</code> for Claude Code, <code>~/.codex/AGENTS.md</code> for Codex, <code>~/.cursor/rules/*.mdc</code> for Cursor, <code>.github/copilot-instructions.md</code> for Copilot, and so on. Maintaining ten copies of the same content by hand is a recipe for drift.</p>
+
+<p>This repo solves that with a <strong>stub-mode architecture</strong>:</p>
+
+<ul>
+<li><strong>One canonical file</strong> (<code>AGENTS.md</code> at the root of this repo) holds every rule that should apply across all my AI agents.</li>
+<li><strong>Ten per-agent stubs</strong> (<code>per-agent/&lt;name&gt;.md</code>) are small files that point at the canonical file and add only that agent's specific quirks.</li>
+<li>The companion skill <a href="https://github.com/chirag127/skill-agents-md-sync"><code>chirag127/skill-agents-md-sync</code></a> reads this repo and writes each stub into the matching home-directory location every time <code>AGENTS.md</code> changes.</li>
+</ul>
+
+<blockquote>
+  <p>🆕 <strong>Read this first if you're an AI agent entering this repo:</strong> the canonical <code>AGENTS.md</code> is <strong>part of the system prompt</strong> for every coding agent on the user's machines. Treat it as authoritative.</p>
+</blockquote>
+
+<h2 id="layout">Layout</h2>
+
+<pre><code>agents-md/
+├── AGENTS.md              ← THE canonical content; edit this
+├── per-agent/             ← per-agent stubs (pointer + quirks each)
+│   ├── claude.md          → ~/.claude/CLAUDE.md
+│   ├── codex.md           → ~/.codex/AGENTS.md
+│   ├── gemini.md          → ~/.gemini/GEMINI.md
+│   ├── cursor.md          → ~/.cursor/rules/00-agents.mdc
+│   ├── cline.md           → ~/.cline/global-rules.md
+│   ├── windsurf.md        → ~/.codeium/windsurf/memories/global_rules.md
+│   ├── continue.md        → ~/.continue/global-rules.md
+│   ├── aider.md           → ~/CONVENTIONS.md
+│   ├── junie.md           → ~/.junie/guidelines.md
+│   ├── copilot.md         → &lt;repo&gt;/.github/copilot-instructions.md (project only)
+│   ├── github-pages-workflow.md  ← reusable GH Pages workflow + CLI template
+│   └── README.md          ← describes the per-agent stub contract
+├── README.md              ← you are here
+└── LICENSE
+</code></pre>
+
+<p>This is a <strong>content-only repo</strong>. No scripts, no submodules, no CI workflows — those live in the umbrella <a href="https://github.com/chirag127/setup"><code>chirag127/setup</code></a>.</p>
+
+<blockquote>
+  <p><strong>Standards referenced:</strong> rules in <code>AGENTS.md</code> follow the
+  <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md">Open Knowledge Format (OKF) v0.1</a>
+  for durable knowledge bundles, and mandate a
+  <a href="https://chirag127.github.io/agents-md/">GitHub Pages info site</a> for every new repo.
+  OKF was introduced by Google Cloud on <a href="https://cloud.google.com/blog/products/data-analytics/introducing-the-open-knowledge-format">2026-06-13</a>.</p>
+</blockquote>
+
+<h2 id="usage-for-the-user">Usage — for the user</h2>
+
+<div class="codehilite">
+<pre><span></span><code><span class="c1"># 1. Edit the canonical file (or any per-agent stub).</span>
+<span class="nv">$EDITOR</span><span class="w"> </span>AGENTS.md
+<span class="c1"># or:  $EDITOR per-agent/claude.md</span>
+
+<span class="c1"># 2. Fan changes out to every agent&#39;s home-dir file.</span>
+node<span class="w"> </span>/c/D/skill-agents-md-sync/scripts/sync-agents.mjs
+<span class="c1"># or via npx (no clone needed):</span>
+npx<span class="w"> </span>skills<span class="w"> </span>run<span class="w"> </span>chirag127/skill-agents-md-sync
+
+<span class="c1"># 3. Commit + push.</span>
+git<span class="w"> </span>add<span class="w"> </span>-A<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(rules): &lt;one-liner&gt;&quot;</span>
+git<span class="w"> </span>push
+</code></pre>
+</div>
+
+<p>Idempotent. Every other machine picks up the change with <code>git pull &amp;&amp; bash bootstrap.sh</code> from the umbrella.</p>
+
+<h2 id="usage-for-an-ai-agent-reading-these-rules">Usage — for an AI agent reading these rules</h2>
+
+<p>The canonical <code>AGENTS.md</code> itself contains the working contract: how to update rules (propose-then-confirm), how to handle git pushes, how to choose tech defaults (latest + free-first), and the list of known per-agent quirks. <strong>Read it.</strong> This README explains the system; <code>AGENTS.md</code> is the system.</p>
+
+<h2 id="adding-a-new-agent">Adding a new agent</h2>
+
+<ol>
+<li>Create <code>per-agent/&lt;name&gt;.md</code> following the existing 6-line pattern (one-line pointer + 2-3 quirk bullets).</li>
+<li>Add the target path to <code>globalTargets()</code> (and/or <code>projectTargets()</code>) in <code>chirag127/skill-agents-md-sync/scripts/sync-agents.mjs</code>.</li>
+<li>Open a PR in this repo and a matching PR in <code>skill-agents-md-sync</code>.</li>
+</ol>
+
+<h2 id="sister-repos">Sister repos</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Repo</th>
+  <th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><a href="https://github.com/chirag127/setup"><code>chirag127/setup</code></a></td>
+  <td>Public umbrella. Vendors this repo as a submodule, runs the bootstrap.</td>
+</tr>
+<tr>
+  <td><a href="https://github.com/chirag127/skill-agents-md-sync"><code>chirag127/skill-agents-md-sync</code></a></td>
+  <td>The skill that reads this repo and writes the per-agent files.</td>
+</tr>
+<tr>
+  <td><a href="https://github.com/chirag127/skill-claude-code-mcq-notes"><code>chirag127/skill-claude-code-mcq-notes</code></a></td>
+  <td>Skill capturing Claude Code AskUserQuestion bugs (referenced from <code>per-agent/claude.md</code>).</td>
+</tr>
+<tr>
+  <td><a href="https://github.com/chirag127/secrets"><code>chirag127/secrets</code></a></td>
+  <td>Private; API keys / <code>.env</code> files only. Never referenced from this repo's content.</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="license">License</h2>
+
+<p>MIT for the structure and per-agent stubs. The personal preferences inside <code>AGENTS.md</code> are not generally applicable; copy the structure, not the preferences.</p>
+
+</body>
+</html>
