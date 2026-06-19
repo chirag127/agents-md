@@ -175,6 +175,15 @@ e-commerce, Stack Overflow, Bitcoin) are in the same repo under `okf/`.
   not in the fork. The test: `git pull upstream main` should never produce a merge conflict.
   When unsure whether a change qualifies as ancillary, propose moving it to a sibling repo
   before writing.
+- **Every new repository gets a GitHub Pages site.** When creating any new `chirag127/*` repo
+  (or any repo without an existing web presence), add a `docs/` folder containing at minimum
+  an `index.html` (or `index.md` for Jekyll), wire up GitHub Pages from that folder on the
+  `main` branch, and link the Pages URL in the repo's About section and in `README.md`. The
+  site should describe what the project does and how to use it — not a placeholder. Use the
+  free Cloudflare Pages / GitHub Pages tier (per the free-hosting-first rule). For projects
+  that already have a frontend (`src/`, `app/`, Astro/Next build output), point Pages at the
+  build output directory instead of a separate `docs/`. Forks are exempt — do not add Pages
+  to a fork unless it is the contribution being upstreamed.
 
 ---
 
@@ -292,3 +301,4 @@ Pinned cross-session decisions (auto-grow this list per the self-update rule):
 - **Forks must stay thin.** Personal additions go to sibling repos or `chirag127/setup`, never into a fork's working tree. Goal: zero merge conflicts on `git pull upstream main`. (Decided 2026-06-19 after I bloated `C:\D\skills` with a sync skill, recommendations, and bootstrap files that all belonged in `chirag127/agents-md` and `chirag127/setup`.)
 - **AGENTS.md = shared rules only.** Per-agent rules (model defaults, known bugs, edit-mode prefs, skills/MCP inventory) live in `per-agent/<name>.md` — substantive 4-5 KB files, not stubs. Each per-agent file starts with "Read `~/AGENTS.md` first" then adds its own rules on top. (Decided 2026-06-19; reversed the earlier "AGENTS.md holds everything, per-agent files are tiny pointers" design.)
 - **Open Knowledge Format (OKF) for durable knowledge.** When a repo grows knowledge worth re-consulting (schemas, runbooks, metrics, decisions), capture it as an OKF v0.1 bundle: one concept per markdown file with YAML frontmatter (`type` required; `title`/`description`/`resource`/`tags`/`timestamp` when meaningful), `index.md`/`log.md` reserved, cross-linked via normal markdown links. Ephemeral findings still go inline — OKF is for the queryable, long-lived layer. (Decided 2026-06-19, after Google Cloud's OKF v0.1 announcement on the same date; format is vendor-neutral and intended as a lingua franca across agents and catalogs.)
+- **Every new repo gets a GitHub Pages site.** `docs/index.html` (or Jekyll `index.md`) wired to Pages from `main`; URL linked in About + README. For repos with a frontend build, point Pages at the build output. Forks are exempt. (Decided 2026-06-19.)
