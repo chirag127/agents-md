@@ -175,15 +175,81 @@ e-commerce, Stack Overflow, Bitcoin) are in the same repo under `okf/`.
   not in the fork. The test: `git pull upstream main` should never produce a merge conflict.
   When unsure whether a change qualifies as ancillary, propose moving it to a sibling repo
   before writing.
-- **Every new repository gets a GitHub Pages site.** When creating any new `chirag127/*` repo
-  (or any repo without an existing web presence), add a `docs/` folder containing at minimum
-  an `index.html` (or `index.md` for Jekyll), wire up GitHub Pages from that folder on the
-  `main` branch, and link the Pages URL in the repo's About section and in `README.md`. The
-  site should describe what the project does and how to use it — not a placeholder. Use the
-  free Cloudflare Pages / GitHub Pages tier (per the free-hosting-first rule). For projects
-  that already have a frontend (`src/`, `app/`, Astro/Next build output), point Pages at the
-  build output directory instead of a separate `docs/`. Forks are exempt — do not add Pages
-  to a fork unless it is the contribution being upstreamed.
+- **Every new repository gets a GitHub Pages info site — always separate from the repo's own
+  content.** Even if the repo itself is a website or web app, it still needs a separate info
+  site about the project. The two must never be conflated:
+  - **Repo's own site** — whatever the project ships (app, library docs, tool UI). Lives where
+    it makes sense for that project (`main` branch build output, Cloudflare Pages, etc.).
+  - **Info site** — a lightweight, always-present project page that explains what the repo is,
+    how to install/use it, and links to the repo. This is the one this rule mandates.
+
+  **Info-site setup (do this for every new repo):**
+  1. **Branch:** use a dedicated `gh-pages` branch (not `docs/` on `main` — that pollutes the
+     working tree and conflicts with repos that are themselves websites).
+  2. **Minimum viable content:** convert `README.md` → styled `index.html` automatically via a
+     GitHub Actions workflow (see template below). No manual HTML authoring required — the
+     README is the source of truth; the workflow re-renders it on every push to `main`.
+  3. **Enable Pages in repo settings:** Settings → Pages → Source: "Deploy from a branch" →
+     branch `gh-pages`, folder `/ (root)`. Do this via `gh api` (see command below) so it is
+     scripted, not a manual click.
+  4. **Link the Pages URL** in the repo's About section (`gh repo edit --homepage`) and as a
+     badge or link at the top of `README.md`.
+
+  **GitHub Actions workflow template** (commit as `.github/workflows/pages.yml`):
+
+  ```yaml
+  name: Deploy info site to GitHub Pages
+  on:
+    push:
+      branches: [main]
+    workflow_dispatch:
+  permissions:
+    contents: write
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Convert README to HTML
+          run: |
+            pip install markdown2 pygments
+            python - <<'PY'
+  import markdown2, pathlib, textwrap
+  md  = pathlib.Path("README.md").read_text(encoding="utf-8")
+  body = markdown2.markdown(md, extras=["fenced-code-blocks","tables","header-ids","strike"])
+  title = md.splitlines()[0].lstrip("# ").strip()
+  html = textwrap.dedent(f"""
+  <!doctype html><html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{title}</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+  <style>body{{max-width:860px;margin:40px auto;padding:0 20px}}}</style>
+  </head><body class="markdown-body">{body}</body></html>
+  """).strip()
+  pathlib.Path("index.html").write_text(html, encoding="utf-8")
+  PY
+        - name: Deploy to gh-pages
+          uses: peaceiris/actions-gh-pages@v4
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: .
+            publish_branch: gh-pages
+            exclude_assets: '.github,*.md,*.yml,*.yaml,*.toml,*.json,*.lock,src,tests'
+  ```
+
+  **Enable Pages via CLI** (run once after the first workflow push):
+  ```bash
+  gh api repos/{owner}/{repo}/pages \
+    --method POST \
+    --field source='{"branch":"gh-pages","path":"/"}' \
+    2>/dev/null || \
+  gh api repos/{owner}/{repo}/pages \
+    --method PUT \
+    --field source='{"branch":"gh-pages","path":"/"}'
+  ```
+
+  **Forks are exempt** — do not add Pages to a fork unless the change is being upstreamed.
 
 ---
 
@@ -301,4 +367,4 @@ Pinned cross-session decisions (auto-grow this list per the self-update rule):
 - **Forks must stay thin.** Personal additions go to sibling repos or `chirag127/setup`, never into a fork's working tree. Goal: zero merge conflicts on `git pull upstream main`. (Decided 2026-06-19 after I bloated `C:\D\skills` with a sync skill, recommendations, and bootstrap files that all belonged in `chirag127/agents-md` and `chirag127/setup`.)
 - **AGENTS.md = shared rules only.** Per-agent rules (model defaults, known bugs, edit-mode prefs, skills/MCP inventory) live in `per-agent/<name>.md` — substantive 4-5 KB files, not stubs. Each per-agent file starts with "Read `~/AGENTS.md` first" then adds its own rules on top. (Decided 2026-06-19; reversed the earlier "AGENTS.md holds everything, per-agent files are tiny pointers" design.)
 - **Open Knowledge Format (OKF) for durable knowledge.** When a repo grows knowledge worth re-consulting (schemas, runbooks, metrics, decisions), capture it as an OKF v0.1 bundle: one concept per markdown file with YAML frontmatter (`type` required; `title`/`description`/`resource`/`tags`/`timestamp` when meaningful), `index.md`/`log.md` reserved, cross-linked via normal markdown links. Ephemeral findings still go inline — OKF is for the queryable, long-lived layer. (Decided 2026-06-19, after Google Cloud's OKF v0.1 announcement on the same date; format is vendor-neutral and intended as a lingua franca across agents and catalogs.)
-- **Every new repo gets a GitHub Pages site.** `docs/index.html` (or Jekyll `index.md`) wired to Pages from `main`; URL linked in About + README. For repos with a frontend build, point Pages at the build output. Forks are exempt. (Decided 2026-06-19.)
+- **Every new repo gets a GitHub Pages info site — always separate.** Dedicated `gh-pages` branch (not `docs/` on `main`). Minimum: a GH Actions workflow that converts `README.md` → styled `index.html` on every push to `main` (markdown2 + github-markdown-css). Pages enabled via `gh api`. URL linked in About + README badge. Even if the repo itself is a website, the info site is separate. Forks exempt. (Decided 2026-06-19.)
