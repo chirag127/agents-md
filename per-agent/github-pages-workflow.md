@@ -110,11 +110,13 @@ REPO=<repo-name>
 # Try POST first (creates); fall back to PUT (updates)
 gh api "repos/${OWNER}/${REPO}/pages" \
   --method POST \
-  --field source='{"branch":"gh-pages","path":"/"}' \
+  -f 'source[branch]=gh-pages' \
+  -f 'source[path]=/' \
   2>/dev/null || \
 gh api "repos/${OWNER}/${REPO}/pages" \
   --method PUT \
-  --field source='{"branch":"gh-pages","path":"/"}'
+  -f 'source[branch]=gh-pages' \
+  -f 'source[path]=/'
 
 # Set the homepage in the repo About section
 gh repo edit "${OWNER}/${REPO}" \

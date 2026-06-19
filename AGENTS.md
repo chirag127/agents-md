@@ -186,7 +186,14 @@ under the self-update rule (same flow as adding a rule to AGENTS.md).
   2. **Content:** commit `.github/workflows/pages.yml` — a GH Actions workflow that converts
      `README.md` → styled `index.html` (via `markdown2` + `github-markdown-css`) on every
      push to `main`. No manual HTML authoring required.
-  3. **Enable Pages:** run the `gh api` one-liner to set source to `gh-pages` branch root.
+  3. **Enable Pages:** run the `gh api` one-liner to set source to `gh-pages` branch root:
+     ```bash
+     gh api repos/{owner}/{repo}/pages --method POST \
+       -f 'source[branch]=gh-pages' -f 'source[path]=/' 2>/dev/null || \
+     gh api repos/{owner}/{repo}/pages --method PUT \
+       -f 'source[branch]=gh-pages' -f 'source[path]=/'
+     gh repo edit {owner}/{repo} --homepage "https://{owner}.github.io/{repo}/"
+     ```
   4. **README links:** every new repo's `README.md` must include **both** a GitHub-repo badge
      and an info-site badge near the top. The info-site rendered page must itself link back to
      the GitHub repo URL and to the project's own website (if one exists separately).
