@@ -32,6 +32,29 @@ not — only rules that span sessions.
 A short bias toward writing: when in doubt, propose. The user can decline. Better to surface
 than silently forget.
 
+### End-of-chat AGENTS.md sweep — mandatory
+
+Before the chat ends (when the user signals they're done, or when you're about to hand
+off), do an explicit sweep — not optional, not "if I happen to remember":
+
+1. **Walk back through the session** for every preference / decision / correction the user
+   made — even ones I forgot to propose at the time. Each one that spans sessions gets
+   added now.
+2. **Remove contradictions.** If today's decision contradicts an existing line in
+   `AGENTS.md` (or the relevant per-agent file, or `<repo>/AGENTS.md`), **delete or rewrite
+   the old line in the same edit** — never leave both. The newer rule wins; the old one is
+   gone, not commented out, not left as a "see also". A reader six months from now must
+   not be able to find the contradicted version.
+3. **Walk back through related per-agent files** (`per-agent/<name>.md`) and `<repo>/AGENTS.md`
+   for repos touched this session — the same rule may need updating in multiple places.
+4. **One commit per logical decision** with a conventional-commits message naming what
+   changed and what was removed (e.g. `docs(rules): switch theme default to dark; drop
+   AMOLED-preferred clause`). Run the sync after.
+5. **Do NOT push without explicit say-so.** Commits stack locally; the user pushes when ready.
+
+If the chat ends without this sweep, the rules drift and future sessions act on stale
+context. The sweep is the contract that prevents that.
+
 ---
 
 ## Project context — always read the README first
@@ -233,6 +256,13 @@ service. Surface alternatives only when there's a specific reason this default d
   Next.js only when SSR/RSC is genuinely needed.
 - **CSS:** Tailwind CSS v4 (utility-first); shadcn/ui for component primitives.
 - **State:** TanStack Query for server state; Zustand for client state. Avoid Redux.
+- **Theme — dark only, no toggle.** Every site, app, extension popup, docs page, dashboard,
+  status page, 404, README screenshot, marketing render, embed preview, design preview, and
+  CLI TUI I ship defaults to **near-black dark mode** (`#0a0a0a`–`#121212` background range
+  on body surfaces). No light mode by default; no light/dark toggle by default. Pure AMOLED
+  `#000` is reserved for opt-in single-purpose mobile reader views (e.g. an in-book reading
+  route) — never the family default and never paragraph-content body. Don't ask "dark or
+  light?" — the answer is dark.
 
 ### Backend / hosting (free-tier first, in priority order)
 - **Static + edge functions:** Cloudflare Pages + Cloudflare Workers (free, 100k req/day).
@@ -323,4 +353,5 @@ Pinned cross-session decisions (auto-grow this list per the self-update rule):
 - **Forks must stay thin.** Personal additions go to sibling repos or `chirag127/setup`, never into a fork's working tree. Goal: zero merge conflicts on `git pull upstream main`. (Decided 2026-06-19 after I bloated `C:\D\skills` with a sync skill, recommendations, and bootstrap files that all belonged in `chirag127/agents-md` and `chirag127/setup`.)
 - **AGENTS.md = shared rules only.** Per-agent rules (model defaults, known bugs, edit-mode prefs, skills/MCP inventory) live in `per-agent/<name>.md` — substantive 4-5 KB files, not stubs. Each per-agent file starts with "Read `~/AGENTS.md` first" then adds its own rules on top. (Decided 2026-06-19; reversed the earlier "AGENTS.md holds everything, per-agent files are tiny pointers" design.)
 - **Open Knowledge Format (OKF) for durable knowledge.** When a repo grows knowledge worth re-consulting (schemas, runbooks, metrics, decisions), capture it as an OKF v0.1 bundle: one concept per markdown file with YAML frontmatter (`type` required; `title`/`description`/`resource`/`tags`/`timestamp` when meaningful), `index.md`/`log.md` reserved, cross-linked via normal markdown links. Ephemeral findings still go inline — OKF is for the queryable, long-lived layer. (Decided 2026-06-19, after Google Cloud's OKF v0.1 announcement on the same date; format is vendor-neutral and intended as a lingua franca across agents and catalogs.)
-- **Every new repo gets a GitHub Pages info site — always separate.** Dedicated `gh-pages` branch (not `docs/` on `main`). Minimum: a GH Actions workflow that converts `README.md` → styled `index.html` on every push to `main` (markdown2 + github-markdown-css). Pages enabled via `gh api`. URL linked in About + README badge. Even if the repo itself is a website, the info site is separate. Forks exempt. (Decided 2026-06-19.)
+- **Dark only, no toggle, near-black.** Every UI surface I ship — websites, web apps, extension popups, docs, dashboards, status pages, 404s, READMEs with screenshots, marketing renders, embed previews, design previews, CLI TUIs — defaults to **near-black dark mode** (`#0a0a0a`–`#121212` background range on body surfaces). No light mode by default; no light/dark toggle by default. Pure AMOLED `#000` is reserved for opt-in single-purpose mobile reader views — never the family default. Verified 2026-06-20 against current usage stats (~82–95% of users prefer dark; near-black is what Linear/Vercel/Raycast/GitHub ship; pure black causes astigmatism halation on paragraph text). (Decided 2026-06-20; supersedes the earlier "dark with AMOLED preferred" framing.)
+- **End-of-chat AGENTS.md sweep is mandatory, contradictions get deleted.** Before any chat ends, walk back through the session, add every cross-session preference / decision / correction, and **delete or rewrite contradicted lines in the same edit** — never leave both. The newer rule wins; the old one is gone (not commented out, not "see also"). Sweep `~/AGENTS.md`, the relevant `per-agent/<name>.md`, and any `<repo>/AGENTS.md` touched this session. One commit per logical decision; no push without say-so. Codified in `## How you (the agent) update these rules` → `### End-of-chat AGENTS.md sweep — mandatory`. (Decided 2026-06-20.)
